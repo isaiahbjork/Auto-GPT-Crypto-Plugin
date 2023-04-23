@@ -7,3 +7,6 @@ wheel
 setuptools
 build
 twine
+auto-gpt-plugin-template
+web3
+eth-abi
