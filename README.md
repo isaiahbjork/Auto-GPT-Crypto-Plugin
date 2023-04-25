@@ -79,6 +79,7 @@ INFURA_API_KEY=
 ETHERSCAN_API_KEY=
 ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
+ETH_NETWORK=
 ```
 
 - Create a [Infura](https://infuro.io) account.
@@ -87,7 +88,7 @@ ETH_WALLET_PRIVATE_KEY=
 - Set `ETHERSCAN_API_KEY` to your Etherscan API Key.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
 - Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum Private Key.
-
+- Set `ETH_NETWORK` to your Ethereum Network (mainnet or sepolia).
 ### 10. Allowlist Plugin
 
 In your `.env` search for `ALLOWLISTED_PLUGINS` and add this Plugin:

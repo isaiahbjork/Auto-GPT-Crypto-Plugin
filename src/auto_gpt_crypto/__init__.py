@@ -1,24 +1,23 @@
-"""This is a plugin to use Auto-GPT with MetaTrader."""
+"""This is a plugin to use Auto-GPT with Crypto."""
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
 
-# MetaTrader
+# Crypto
 import os
 from web3 import Web3
-from eth_abi import encode_single, decode_single
+from eth_abi.packed import encode_packed
 from eth_abi.exceptions import DecodingError
 import requests
-
+import json
 # Connect to the Ethereum network using Infura API endpoint
 
 PromptGenerator = TypeVar("PromptGenerator")
 
-project_id = os.getenv('INFURA_API_KEY')
+infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
 private_key = os.getenv('ETH_WALLET_PRIVATE_KEY')
 etherscan_api = os.getenv('ETHERSCAN_API_KEY')
-
-w3 = Web3(Web3.HTTPProvider(f'https://mainnet.infura.io/v3/{project_id}'))
+network = os.getenv('ETH_NETWORK')
 
 
 class Message(TypedDict):
@@ -33,9 +32,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
     def __init__(self):
         super().__init__()
-        self._name = "Auto-GPT-MetaTrader"
+        self._name = "Auto-GPT-Crypto"
         self._version = "0.1.0"
-        self._description = "This is a plugin for Auto-GPT-MetaTrader."
+        self._description = "This is a plugin for Auto-GPT-Crypto."
 
     def post_prompt(self, prompt: PromptGenerator) -> PromptGenerator:
         prompt.add_command(
@@ -52,32 +51,52 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             },
             self.get_eth_balance
         ),
-        prompt.add_command(
-            "Send ETH",
-            "send_eth",
-            {
-                "recipient_address": "<recipient_address>",
-                "amount": "<amount>"
-            },
-            self.send_eth
-        ),
-        prompt.add_command(
-            "Purchase ERC-20 Token",
-            "purchase_tokens",
-            {
-                "token_address": "<token_address>",
-                "amount_in_eth": "<amount_in_eth>"
-            },
-            self.purchase_tokens
-        ),
-        prompt.add_command(
-            "Get Token Balances",
-            "get_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_token_balances
-        )
+        # prompt.add_command(
+        #     "Send ETH",
+        #     "send_eth",
+        #     {
+        #         "recipient_address": "<recipient_address>",
+        #         "amount": "<amount>"
+        #     },
+        #     self.send_eth
+        # ),
+        # prompt.add_command(
+        #     "Purchase ERC-20 Token",
+        #     "purchase_tokens",
+        #     {
+        #         "token_address": "<token_address>",
+        #         "amount_in_eth": "<amount_in_eth>"
+        #     },
+        #     self.purchase_tokens
+        # ),
+        # prompt.add_command(
+        #     "Get Token Balances",
+        #     "get_token_balances",
+        #     {
+        #         "wallet_address": "<wallet_address>"
+        #     },
+        #     self.get_token_balances
+        # ),
+        # prompt.add_command(
+        #     "Stake Tokens",
+        #     "stake_tokens",
+        #     {
+        #         "token_address": "<token_address>",
+        #         "staking_contract_address": "<staking_contract_address>",
+        #         "amount": "<amount>"
+        #     },
+        #     self.stake_tokens
+        # ),
+        # prompt.add_command(
+        #     "Send Tokens",
+        #     "send_tokens",
+        #     {
+        #         "token_address": "<token_address>",
+        #         "recipient_address": "<recipient_address>",
+        #         "amount": "<amount>"
+        #     },
+        #     self.send_tokens
+        # )
         return prompt
 
     def can_handle_post_prompt(self) -> bool:
@@ -245,264 +264,288 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
     # Crypto
 
-    def get_eth_balance(self, address: str) -> float:
-        try:
-            # Get balance in Ether
-            balance_wei = w3.eth.get_balance(address)
-            balance_eth = w3.fromWei(balance_wei, 'ether')
+    def get_eth_balance(address: str) -> float:
 
-            return balance_eth
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return None
+        endpoint = f"https://{network}.infura.io/v3/{infura_api}"
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "eth_getBalance",
+            "params": [address, "latest"],
+            "id": 1
+        }
+        headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(endpoint, data=json.dumps(payload), headers=headers)
+        if response.status_code == 200:
+            balance_wei = int(response.json()["result"], 16)
+            balance_eth = balance_wei / 10 ** 18
+            return f'{balance_eth} ETH'
+        else:
+            raise Exception(
+                f"Failed to get ETH balance for {address}; status code {response.status_code}")
 
     def get_my_eth_balance(self) -> float:
-        try:
-            # Get balance in Ether
-            balance_wei = w3.eth.get_balance(my_address)
-            balance_eth = w3.fromWei(balance_wei, 'ether')
+        endpoint = f"https://{network}.infura.io/v3/{infura_api}"
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "eth_getBalance",
+            "params": [my_address, "latest"],
+            "id": 1
+        }
+        headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(endpoint, data=json.dumps(payload), headers=headers)
+        if response.status_code == 200:
+            balance_wei = int(response.json()["result"], 16)
+            balance_eth = balance_wei / 10 ** 18
+            return f'{balance_eth} ETH'
+        else:
+            raise Exception(
+                f"Failed to get ETH balance for {my_address}; status code {response.status_code}")
 
-            return balance_eth
+    # def send_eth(self, recipient_address: str, amount: float) -> str:
+    #     try:
+    #         # Convert amount to Wei
+    #         amount_wei = w3.toWei(amount, 'ether')
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return None
+    #         # Build transaction
+    #         nonce = w3.eth.getTransactionCount(my_address)
+    #         tx = {
+    #             'nonce': nonce,
+    #             'to': recipient_address,
+    #             'value': amount_wei,
+    #             'gas': 21000,
+    #             'gasPrice': w3.toWei('50', 'gwei')
+    #         }
 
-    def send_eth(self, recipient_address: str, amount: float) -> str:
-        try:
-            # Convert amount to Wei
-            amount_wei = w3.toWei(amount, 'ether')
+    #         # Sign transaction
+    #         signed_tx = w3.eth.account.sign_transaction(tx, private_key=private_key)
 
-            # Build transaction
-            nonce = w3.eth.getTransactionCount(my_address)
-            tx = {
-                'nonce': nonce,
-                'to': recipient_address,
-                'value': amount_wei,
-                'gas': 21000,
-                'gasPrice': w3.toWei('50', 'gwei')
-            }
+    #         # Send transaction
+    #         tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
 
-            # Sign transaction
-            signed_tx = w3.eth.account.sign_transaction(tx, private_key=private_key)
+    #         return tx_hash.hex()
 
-            # Send transaction
-            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    #     except Exception as e:
+    #         return f"An error occurred: {e}"
 
-            return tx_hash.hex()
+    # def purchase_tokens(token_address: str, amount_eth: float) -> str:
+    #     # Set the Etherscan API key and endpoint
+    #     api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
 
-        except Exception as e:
-            return f"An error occurred: {e}"
+    #     # Send the API request to get the contract ABI
+    #     try:
+    #         response = requests.get(api_endpoint)
+    #         response_json = response.json()
+    #         if response_json['status'] != '1':
+    #             return f"API error: {response_json['message']}"
+    #         contract_abi = response_json['result']
+    #     except Exception as e:
+    #         return f"API request failed: {e}"
 
-    def purchase_tokens(token_address: str, amount_eth: float) -> str:
-        # Set the Etherscan API key and endpoint
-        api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
+    #     # Convert amount to token units
+    #     try:
+    #         contract = w3.eth.contract(
+    #             address=token_address, abi=contract_abi)
+    #         token_decimals = contract.functions.decimals().call()
+    #         amount_units = int(amount_eth * 10 ** token_decimals)
+    #     except Exception as e:
+    #         return f"Failed to convert amount to token units: {e}"
 
-        # Send the API request to get the contract ABI
-        try:
-            response = requests.get(api_endpoint)
-            response_json = response.json()
-            if response_json['status'] != '1':
-                return f"API error: {response_json['message']}"
-            contract_abi = response_json['result']
-        except Exception as e:
-            return f"API request failed: {e}"
+    #     # Build transaction data
+    #     try:
+    #         transfer_data = encode_abi(
+    #             '(address,uint256)', (my_address, amount_units))
+    #         tx_data = contract.functions.transfer(my_address, amount_units).buildTransaction({
+    #             'nonce': w3.eth.getTransactionCount(w3.eth.accounts[0]),
+    #             'gas': 200000,
+    #             'gasPrice': w3.toWei('50', 'gwei'),
+    #             'data': transfer_data
+    #         })
+    #     except Exception as e:
+    #         return f"Failed to build transaction data: {e}"
 
-        # Convert amount to token units
-        try:
-            contract = w3.eth.contract(
-                address=token_address, abi=contract_abi)
-            token_decimals = contract.functions.decimals().call()
-            amount_units = int(amount_eth * 10 ** token_decimals)
-        except Exception as e:
-            return f"Failed to convert amount to token units: {e}"
+    #     # Sign transaction
+    #     try:
+    #         signed_tx = w3.eth.account.sign_transaction(
+    #             tx_data, private_key=private_key)
+    #     except Exception as e:
+    #         return f"Failed to sign transaction: {e}"
 
-        # Build transaction data
-        try:
-            transfer_data = encode_single(
-                '(address,uint256)', (my_address, amount_units))
-            tx_data = contract.functions.transfer(my_address, amount_units).buildTransaction({
-                'nonce': w3.eth.getTransactionCount(w3.eth.accounts[0]),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': transfer_data
-            })
-        except Exception as e:
-            return f"Failed to build transaction data: {e}"
+    #     # Send transaction
+    #     try:
+    #         tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    #     except Exception as e:
+    #         return f"Failed to send transaction: {e}"
 
-        # Sign transaction
-        try:
-            signed_tx = w3.eth.account.sign_transaction(
-                tx_data, private_key=private_key)
-        except Exception as e:
-            return f"Failed to sign transaction: {e}"
+    #     # Get the token symbol
+    #     try:
+    #         token_symbol = contract.functions.symbol().call()
+    #     except Exception as e:
+    #         return f"Failed to get token symbol: {e}"
 
-        # Send transaction
-        try:
-            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        except Exception as e:
-            return f"Failed to send transaction: {e}"
+    #     return f"{amount_eth} ETH converted to {amount_units} {token_symbol} tokens and sent to {recipient_address}; transaction hash: {tx_hash.hex()}"
 
-        # Get the token symbol
-        try:
-            token_symbol = contract.functions.symbol().call()
-        except Exception as e:
-            return f"Failed to get token symbol: {e}"
+    # def get_token_balances(wallet_address: str) -> dict:
+    #     # Set the Etherscan API key and endpoint
+    #     api_endpoint = f'https://api.etherscan.io/api?module=account&action=tokentx&address={wallet_address}&startblock=0&endblock=999999999&sort=asc&apikey={etherscan_api}'
 
-        return f"{amount_eth} ETH converted to {amount_units} {token_symbol} tokens and sent to {recipient_address}; transaction hash: {tx_hash.hex()}"
+    #     # Send the API request
+    #     try:
+    #         response = requests.get(api_endpoint)
+    #         response_json = response.json()
+    #         if response_json['status'] != '1':
+    #             return f"API error: {response_json['message']}"
+    #     except Exception as e:
+    #         return f"API request failed: {e}"
 
-    def get_token_balances(wallet_address: str) -> dict:
-        # Set the Etherscan API key and endpoint
-        api_endpoint = f'https://api.etherscan.io/api?module=account&action=tokentx&address={wallet_address}&startblock=0&endblock=999999999&sort=asc&apikey={etherscan_api}'
+    #     # Parse the API response
+    #     token_balances = {}
+    #     for transfer in response_json['result']:
+    #         token_address = transfer['contractAddress']
+    #         token_symbol = transfer['tokenSymbol']
+    #         token_decimals = int(transfer['tokenDecimal'])
+    #         token_value = float(transfer['value']) / 10 ** token_decimals
 
-        # Send the API request
-        try:
-            response = requests.get(api_endpoint)
-            response_json = response.json()
-            if response_json['status'] != '1':
-                return f"API error: {response_json['message']}"
-        except Exception as e:
-            return f"API request failed: {e}"
+    #         if token_address not in token_balances:
+    #             token_balances[token_address] = {'symbol': token_symbol, 'balance': 0}
 
-        # Parse the API response
-        token_balances = {}
-        for transfer in response_json['result']:
-            token_address = transfer['contractAddress']
-            token_symbol = transfer['tokenSymbol']
-            token_decimals = int(transfer['tokenDecimal'])
-            token_value = float(transfer['value']) / 10 ** token_decimals
+    #         if transfer['from'] == wallet_address:
+    #             token_balances[token_address]['balance'] -= token_value
+    #         elif transfer['to'] == wallet_address:
+    #             token_balances[token_address]['balance'] += token_value
 
-            if token_address not in token_balances:
-                token_balances[token_address] = {'symbol': token_symbol, 'balance': 0}
+    #     # Remove tokens with zero balances
+    #     token_balances = {k: v for k, v in token_balances.items() if v['balance'] != 0}
 
-            if transfer['from'] == wallet_address:
-                token_balances[token_address]['balance'] -= token_value
-            elif transfer['to'] == wallet_address:
-                token_balances[token_address]['balance'] += token_value
+    #     return token_balances
 
-        # Remove tokens with zero balances
-        token_balances = {k: v for k, v in token_balances.items() if v['balance'] != 0}
+    # def send_tokens(token_address: str, recipient_address: str, amount: float) -> str:
+    #     api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
 
-        return token_balances
+    #     # Send the API request to get the contract ABI
+    #     try:
+    #         response = requests.get(api_endpoint)
+    #         response_json = response.json()
+    #         if response_json['status'] != '1':
+    #             return f"API error: {response_json['message']}"
+    #         contract_abi = response_json['result']
+    #     except Exception as e:
+    #         return f"API request failed: {e}"
 
-    def send_tokens(token_address: str, sender_address: str, recipient_address: str, amount: float) -> str:
-        api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
+    #     # Convert amount to token units
+    #     try:
+    #         contract = w3.eth.contract(
+    #             address=token_address, abi=contract_abi)
+    #         token_decimals = contract.functions.decimals().call()
+    #         amount_units = int(amount * 10 ** token_decimals)
+    #     except Exception as e:
+    #         return f"Failed to convert amount to token units: {e}"
 
-        # Send the API request to get the contract ABI
-        try:
-            response = requests.get(api_endpoint)
-            response_json = response.json()
-            if response_json['status'] != '1':
-                return f"API error: {response_json['message']}"
-            contract_abi = response_json['result']
-        except Exception as e:
-            return f"API request failed: {e}"
+    #     # Build transaction data
+    #     try:
+    #         transfer_data = encode_abi(
+    #             '(address,uint256)', (recipient_address, amount_units))
+    #         tx_data = contract.functions.transfer(recipient_address, amount_units).buildTransaction({
+    #             'nonce': w3.eth.getTransactionCount(my_address),
+    #             'gas': 200000,
+    #             'gasPrice': w3.toWei('50', 'gwei'),
+    #             'data': transfer_data
+    #         })
+    #     except Exception as e:
+    #         return f"Failed to build transaction data: {e}"
 
-        # Convert amount to token units
-        try:
-            contract = w3.eth.contract(
-                address=token_address, abi=contract_abi)
-            token_decimals = contract.functions.decimals().call()
-            amount_units = int(amount * 10 ** token_decimals)
-        except Exception as e:
-            return f"Failed to convert amount to token units: {e}"
+    #     # Sign transaction
+    #     try:
+    #         signed_tx = w3.eth.account.sign_transaction(
+    #             tx_data, private_key=private_key)
+    #     except Exception as e:
+    #         return f"Failed to sign transaction: {e}"
 
-        # Build transaction data
-        try:
-            transfer_data = encode_single(
-                '(address,uint256)', (recipient_address, amount_units))
-            tx_data = contract.functions.transfer(recipient_address, amount_units).buildTransaction({
-                'nonce': w3.eth.getTransactionCount(sender_address),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': transfer_data
-            })
-        except Exception as e:
-            return f"Failed to build transaction data: {e}"
+    #     # Send transaction
+    #     try:
+    #         tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    #     except Exception as e:
+    #         return f"Failed to send transaction: {e}"
 
-        # Sign transaction
-        try:
-            signed_tx = w3.eth.account.sign_transaction(
-                tx_data, private_key=private_key)
-        except Exception as e:
-            return f"Failed to sign transaction: {e}"
+    #     # Get the token symbol
+    #     try:
+    #         token_symbol = contract.functions.symbol().call()
+    #     except Exception as e:
+    #         return f"Failed to get token symbol: {e}"
 
-        # Send transaction
-        try:
-            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        except Exception as e:
-            return f"Failed to send transaction: {e}"
+    #     return f"{amount} {token_symbol} tokens sent from {my_address} to {recipient_address}; transaction hash: {tx_hash.hex()}"
 
-        # Get the token symbol
-        try:
-            token_symbol = contract.functions.symbol().call()
-        except Exception as e:
-            return f"Failed to get token symbol: {e}"
+    # def stake_tokens(token_address: str, staking_contract_address: str, sender_address: str, amount: float) -> str:
+    #     # Connect to Ethereum network
+    #     w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
 
-        return f"{amount} {token_symbol} tokens sent from {sender_address} to {recipient_address}; transaction hash: {tx_hash.hex()}"
+    #     # Set the Etherscan API key and endpoint
+    #     api_key = 'YOUR_ETHERSCAN_API_KEY'
+    #     api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={api_key}'
 
-    def stake_tokens(token_address: str, staking_contract_address: str, sender_address: str, amount: float) -> str:
-        api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
+    #     # Send the API request to get the contract ABI
+    #     try:
+    #         response = requests.get(api_endpoint)
+    #         response_json = response.json()
+    #         if response_json['status'] != '1':
+    #             return f"API error: {response_json['message']}"
+    #         contract_abi = response_json['result']
+    #     except Exception as e:
+    #         return f"API request failed: {e}"
 
-        # Send the API request to get the contract ABI
-        try:
-            response = requests.get(api_endpoint)
-            response_json = response.json()
-            if response_json['status'] != '1':
-                return f"API error: {response_json['message']}"
-            contract_abi = response_json['result']
-        except Exception as e:
-            return f"API request failed: {e}"
+    #     # Convert amount to token units
+    #     try:
+    #         contract = w3.eth.contract(
+    #             address=token_address, abi=contract_abi)
+    #         token_decimals = contract.functions.decimals().call()
+    #         amount_units = int(amount * 10 ** token_decimals)
+    #     except Exception as e:
+    #         return f"Failed to convert amount to token units: {e}"
 
-        # Convert amount to token units
-        try:
-            contract = w3.eth.contract(
-                address=token_address, abi=contract_abi)
-            token_decimals = contract.functions.decimals().call()
-            amount_units = int(amount * 10 ** token_decimals)
-        except Exception as e:
-            return f"Failed to convert amount to token units: {e}"
+    #     # Build transaction data
+    #     try:
+    #         approve_data = encode_packed(['address', 'uint256'], [
+    #                                     staking_contract_address, amount_units])
+    #         contract.functions.approve(staking_contract_address, amount_units).buildTransaction({
+    #             'from': sender_address,
+    #             'nonce': w3.eth.getTransactionCount(sender_address),
+    #             'gas': 200000,
+    #             'gasPrice': w3.toWei('50', 'gwei'),
+    #             'data': approve_data.hex()
+    #         })
+    #         stake_data = encode_packed(['uint256'], [amount_units])
+    #         staking_contract = w3.eth.contract(
+    #             address=staking_contract_address, abi=staking_contract_abi)
+    #         tx_data = staking_contract.functions.stake(amount_units).buildTransaction({
+    #             'from': sender_address,
+    #             'nonce': w3.eth.getTransactionCount(sender_address),
+    #             'gas': 200000,
+    #             'gasPrice': w3.toWei('50', 'gwei'),
+    #             'data': stake_data.hex()
+    #         })
+    #     except Exception as e:
+    #         return f"Failed to build transaction data: {e}"
 
-        # Build transaction data
-        try:
-            approve_data = encode_single(
-                '(address,uint256)', (staking_contract_address, amount_units))
-            contract.functions.approve(staking_contract_address, amount_units).buildTransaction({
-                'nonce': w3.eth.getTransactionCount(sender_address),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': approve_data
-            })
-            stake_data = encode_single('(uint256)', amount_units)
-            staking_contract = w3.eth.contract(
-                address=staking_contract_address, abi=staking_contract_abi)
-            tx_data = staking_contract.functions.stake(amount_units).buildTransaction({
-                'nonce': w3.eth.getTransactionCount(sender_address),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': stake_data
-            })
-        except Exception as e:
-            return f"Failed to build transaction data: {e}"
+    #     # Sign transaction
+    #     try:
+    #         signed_tx = w3.eth.account.sign_transaction(
+    #             tx_data, private_key=private_key)
+    #     except Exception as e:
+    #         return f"Failed to sign transaction: {e}"
 
-        # Sign transaction
-        try:
-            signed_tx = w3.eth.account.sign_transaction(
-                tx_data, private_key=private_key)
-        except Exception as e:
-            return f"Failed to sign transaction: {e}"
+    #     # Send transaction
+    #     try:
+    #         tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    #     except Exception as e:
+    #         return f"Failed to send transaction: {e}"
 
-        # Send transaction
-        try:
-            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        except Exception as e:
-            return f"Failed to send transaction: {e}"
+    #     # Get the token symbol
+    #     try:
+    #         token_symbol = contract.functions.symbol().call()
+    #     except Exception as e:
+    #         return f"Failed to get token symbol: {e}"
 
-        # Get the token symbol
-        try:
-            token_symbol = contract.functions.symbol().call()
-        except Exception as e:
-            return f"Failed to get token symbol: {e}"
-
-        return f"{amount} {token_symbol} tokens staked in contract {staking_contract_address}; transaction hash: {tx_hash.hex()}"
+    #     return f"{amount} {token_symbol} tokens staked in contract {staking_contract_address}; transaction hash: {tx_hash}"
