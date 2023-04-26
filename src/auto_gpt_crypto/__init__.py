@@ -4,20 +4,28 @@ from auto_gpt_plugin_template import AutoGPTPluginTemplate
 
 # Crypto
 import os
-from web3 import Web3
 from eth_abi.packed import encode_packed
 from eth_abi.exceptions import DecodingError
 import requests
 import json
-# Connect to the Ethereum network using Infura API endpoint
+from eth_account import Account
+from web3 import Web3, HTTPProvider
+from mnemonic import Mnemonic
+
 
 PromptGenerator = TypeVar("PromptGenerator")
 
 infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
-private_key = os.getenv('ETH_WALLET_PRIVATE_KEY')
+mnemonic_phrase = os.getenv('ETH_WALLET_PRIVATE_KEY')
 etherscan_api = os.getenv('ETHERSCAN_API_KEY')
 network = os.getenv('ETH_NETWORK')
+endpoint = f"https://{network}.infura.io/v3/{infura_api}"
+
+# Connect to Ethereum node using Infura
+w3 = Web3(HTTPProvider(endpoint))
+
+Account.enable_unaudited_hdwallet_features()
 
 
 class Message(TypedDict):
@@ -51,15 +59,15 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             },
             self.get_eth_balance
         ),
-        # prompt.add_command(
-        #     "Send ETH",
-        #     "send_eth",
-        #     {
-        #         "recipient_address": "<recipient_address>",
-        #         "amount": "<amount>"
-        #     },
-        #     self.send_eth
-        # ),
+        prompt.add_command(
+            "Send ETH",
+            "send_eth",
+            {
+                "recipient_address": "<recipient_address>",
+                "amount": "<amount>"
+            },
+            self.send_eth
+        ),
         # prompt.add_command(
         #     "Purchase ERC-20 Token",
         #     "purchase_tokens",
@@ -69,14 +77,14 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         #     },
         #     self.purchase_tokens
         # ),
-        # prompt.add_command(
-        #     "Get Token Balances",
-        #     "get_token_balances",
-        #     {
-        #         "wallet_address": "<wallet_address>"
-        #     },
-        #     self.get_token_balances
-        # ),
+        prompt.add_command(
+            "Get ETH Token Balances",
+            "get_eth_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_eth_token_balances
+        ),
         # prompt.add_command(
         #     "Stake Tokens",
         #     "stake_tokens",
@@ -265,8 +273,6 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     # Crypto
 
     def get_eth_balance(address: str) -> float:
-
-        endpoint = f"https://{network}.infura.io/v3/{infura_api}"
         payload = {
             "jsonrpc": "2.0",
             "method": "eth_getBalance",
@@ -286,7 +292,6 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 f"Failed to get ETH balance for {address}; status code {response.status_code}")
 
     def get_my_eth_balance(self) -> float:
-        endpoint = f"https://{network}.infura.io/v3/{infura_api}"
         payload = {
             "jsonrpc": "2.0",
             "method": "eth_getBalance",
@@ -305,31 +310,41 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             raise Exception(
                 f"Failed to get ETH balance for {my_address}; status code {response.status_code}")
 
-    # def send_eth(self, recipient_address: str, amount: float) -> str:
-    #     try:
-    #         # Convert amount to Wei
-    #         amount_wei = w3.toWei(amount, 'ether')
+    def send_eth(self, recipient_address: str, amount: float) -> str:
+        mnemo = Mnemonic("english")
+        seed = mnemo.to_seed(mnemonic_phrase)
+        acct = Account.from_seed(seed)
+        private_key = acct.privateKey.hex()
 
-    #         # Build transaction
-    #         nonce = w3.eth.getTransactionCount(my_address)
-    #         tx = {
-    #             'nonce': nonce,
-    #             'to': recipient_address,
-    #             'value': amount_wei,
-    #             'gas': 21000,
-    #             'gasPrice': w3.toWei('50', 'gwei')
-    #         }
+        try:
+            # Get the transaction count (nonce) for the sender address
+            nonce = w3.eth.getTransactionCount(my_address)
 
-    #         # Sign transaction
-    #         signed_tx = w3.eth.account.sign_transaction(tx, private_key=private_key)
+            # Prepare the transaction
+            transaction = {
+                'to': recipient_address,
+                'value': w3.toWei(amount, 'ether'),
+                'gas': 21000,  # Standard gas limit for transferring Ether
+                'gasPrice': w3.eth.gasPrice,
+                'nonce': nonce,
+                'chainId': w3.eth.chainId,
+            }
+            # Sign the transaction using the sender's private key
+            signed_tx = Account.sign_transaction(transaction, private_key)
 
-    #         # Send transaction
-    #         tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+            # Send the signed transaction
+            transaction_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
 
-    #         return tx_hash.hex()
+            # Wait for the transaction to be mined and get the transaction receipt
+            transaction_receipt = w3.eth.waitForTransactionReceipt(transaction_hash)
 
-    #     except Exception as e:
-    #         return f"An error occurred: {e}"
+            # Print the transaction receipt
+            print(json.dumps(transaction_receipt, indent=2))
+
+            return f"Transaction hash: {transaction_hash}"
+
+        except Exception as e:
+            return f"An error occurred: {e}"
 
     # def purchase_tokens(token_address: str, amount_eth: float) -> str:
     #     # Set the Etherscan API key and endpoint
@@ -388,39 +403,44 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
     #     return f"{amount_eth} ETH converted to {amount_units} {token_symbol} tokens and sent to {recipient_address}; transaction hash: {tx_hash.hex()}"
 
-    # def get_token_balances(wallet_address: str) -> dict:
-    #     # Set the Etherscan API key and endpoint
-    #     api_endpoint = f'https://api.etherscan.io/api?module=account&action=tokentx&address={wallet_address}&startblock=0&endblock=999999999&sort=asc&apikey={etherscan_api}'
+    def get_eth_token_balances(self, wallet_address: str) -> dict:
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
 
-    #     # Send the API request
-    #     try:
-    #         response = requests.get(api_endpoint)
-    #         response_json = response.json()
-    #         if response_json['status'] != '1':
-    #             return f"API error: {response_json['message']}"
-    #     except Exception as e:
-    #         return f"API request failed: {e}"
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getAccountBalance",
+                "params": {
+                    "blockchain": ["eth"],
+                    "walletAddress": wallet_address,
+                    "onlyWhitelisted": False
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
 
-    #     # Parse the API response
-    #     token_balances = {}
-    #     for transfer in response_json['result']:
-    #         token_address = transfer['contractAddress']
-    #         token_symbol = transfer['tokenSymbol']
-    #         token_decimals = int(transfer['tokenDecimal'])
-    #         token_value = float(transfer['value']) / 10 ** token_decimals
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            assets = response_data['result']['assets']
 
-    #         if token_address not in token_balances:
-    #             token_balances[token_address] = {'symbol': token_symbol, 'balance': 0}
-
-    #         if transfer['from'] == wallet_address:
-    #             token_balances[token_address]['balance'] -= token_value
-    #         elif transfer['to'] == wallet_address:
-    #             token_balances[token_address]['balance'] += token_value
-
-    #     # Remove tokens with zero balances
-    #     token_balances = {k: v for k, v in token_balances.items() if v['balance'] != 0}
-
-    #     return token_balances
+            token_info = []
+            for asset in assets:
+                token_name = asset['tokenName']
+                token_symbol = asset['tokenSymbol']
+                contract_address = asset['contractAddress']
+                token_balance = float(asset['balance'])
+                usd_balance = float(asset['balanceUsd'])
+                token_price_usd = float(asset['tokenPrice'])
+                token_info.append({'name': token_name, 'symbol': token_symbol,
+                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
+            return token_info
+        
+        except Exception as e:
+            return f"Failed to get ETH token balances: {e}"
+        
 
     # def send_tokens(token_address: str, recipient_address: str, amount: float) -> str:
     #     api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'

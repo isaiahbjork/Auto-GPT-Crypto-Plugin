@@ -10,3 +10,4 @@ twine
 auto-gpt-plugin-template
 web3
 eth-abi
+eth-account
