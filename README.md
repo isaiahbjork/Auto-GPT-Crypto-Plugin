@@ -11,6 +11,7 @@ The AutoGPT Crypto Plugin is a software tool that enables traders to connect the
 - **Swap Tokens**
 - **Search Top Holders**
 - **Get Wallet Token Holdings**
+- **Get Coin/NFT of The Day**
 - **Stake Tokens**
 - **Send Tokens**
 - **Get Coins By Market Cap**
@@ -84,10 +85,12 @@ ETH_NETWORK=
 
 - Create a [Infura](https://infura.io) account.
 - Create a [Etherscan](https://etherscan.io) account.
+- Create a [LunarCrush](https://lunarcrush.com) account.
 - Set `INFURA_API_KEY` to your Infura account ID.
 - Set `ETHERSCAN_API_KEY` to your Etherscan API Key.
+- Set `LUNAR_CRUSH_API_KEY` to your Infura account ID.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
-- Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum Private Key, use your mnemonic key in this [generator](https://iancoleman.io/bip39/) and paste the seed here.
+- Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum mnemonic.
 - Set `ETH_NETWORK` to your Ethereum Network (mainnet or sepolia).
 ### 10. Allowlist Plugin
 
