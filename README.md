@@ -82,17 +82,30 @@ ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
 ETH_NETWORK=
 LUNAR_CRUSH_API_KEY=
+CRYPTO_NEWS_API_KEY=
+### Exchanges
+EXCHANGES=
+KRAKEN_API_KEY=
+KRAKEN_SECRET=
+COINBASE_API_KEY=
+COINBASE_SECRET=
 ```
 
 - Create a [Infura](https://infura.io) account.
 - Create a [Etherscan](https://etherscan.io) account.
 - Create a [LunarCrush](https://lunarcrush.com) account.
+- Create a [Crypto News API](https://cryptonews-api.com) account (Free Trial then paid).
 - Set `INFURA_API_KEY` to your Infura account ID.
 - Set `ETHERSCAN_API_KEY` to your Etherscan API Key.
-- Set `LUNAR_CRUSH_API_KEY` to your Infura account ID.
+- Set `LUNAR_CRUSH_API_KEY` to your LunarCrush API Key.
+- Set `CRYPTO_NEWS_API_KEY` to your Crypto News API Key.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
 - Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum mnemonic.
 - Set `ETH_NETWORK` to your Ethereum Network (mainnet or sepolia).
+- Set `EXCHANGES` to the crypto exchanges where you have an account. Review available [exchanges](/src/auto_gpt_crypto/exchanges.txt). (Example: binance,kraken,bybit)
+- Set `KRAKEN_API_KEY` to your Kraken API Key.
+- Set `KRAKEN_SECRET` to your Kraken Secret.
+
 ### 10. Allowlist Plugin
 
 In your `.env` search for `ALLOWLISTED_PLUGINS` and add this Plugin:
