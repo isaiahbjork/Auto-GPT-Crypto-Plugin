@@ -49,7 +49,7 @@ If you haven't already, clone the [Auto-GPT](https://github.com/Significant-Grav
 You might have to run this in the Auto-GPT file if you get an error saying "No Moudle Found".
 
 ```bash
-pip install eth-account
+pip install web3 eth-account ccxt
 ```
 
 ### 5. Copy the Zip file into the Auto-GPT Plugin folder
@@ -81,6 +81,7 @@ ETHERSCAN_API_KEY=
 ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
 ETH_NETWORK=
+LUNAR_CRUSH_API_KEY=
 ```
 
 - Create a [Infura](https://infura.io) account.
