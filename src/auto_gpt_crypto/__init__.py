@@ -19,6 +19,7 @@ infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
 mnemonic_phrase = os.getenv('ETH_WALLET_PRIVATE_KEY')
 etherscan_api = os.getenv('ETHERSCAN_API_KEY')
+lunarcrush_api = os.getenv('LUNARCRUSH_API_KEY')
 network = os.getenv('ETH_NETWORK')
 endpoint = f"https://{network}.infura.io/v3/{infura_api}"
 
@@ -84,6 +85,18 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 "wallet_address": "<wallet_address>"
             },
             self.get_eth_token_balances
+        ),
+        prompt.add_command(
+            "Get Coin of The Day",
+            "get_coin_of_the_day",
+            {},
+            self.get_coin_of_the_day
+        ),
+        prompt.add_command(
+            "Get NFT of The Day",
+            "get_nft_of_the_day",
+            {},
+            self.get_nft_of_the_day
         ),
         # prompt.add_command(
         #     "Stake Tokens",
@@ -437,10 +450,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 token_info.append({'name': token_name, 'symbol': token_symbol,
                                   'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
             return token_info
-        
+
         except Exception as e:
             return f"Failed to get ETH token balances: {e}"
-        
 
     # def send_tokens(token_address: str, recipient_address: str, amount: float) -> str:
     #     api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
@@ -569,3 +581,33 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     #         return f"Failed to get token symbol: {e}"
 
     #     return f"{amount} {token_symbol} tokens staked in contract {staking_contract_address}; transaction hash: {tx_hash}"
+
+    def get_coin_of_the_day(self) -> float:
+
+        url = "https://lunarcrush.com/api3/coinoftheday"
+        headers = {
+            'Authorization': f'Bearer {lunarcrush_api}'
+        }
+
+        response = requests.request("GET", url, headers=headers)
+
+        if response.status_code == 200:
+            return response.text.encode('utf8')
+        else:
+            raise Exception(
+                f"Failed to get coin of the day from LunarCrush; status code {response.status_code}")
+    
+    def get_nft_of_the_day(self) -> float:
+
+        url = "https://lunarcrush.com/api3/nftoftheday"
+        headers = {
+            'Authorization': f'Bearer {lunarcrush_api}'
+        }
+
+        response = requests.request("GET", url, headers=headers)
+
+        if response.status_code == 200:
+            return response.text.encode('utf8')
+        else:
+            raise Exception(
+                f"Failed to get NFT of the day from LunarCrush; status code {response.status_code}")
