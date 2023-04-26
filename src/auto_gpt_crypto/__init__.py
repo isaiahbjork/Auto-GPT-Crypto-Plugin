@@ -1,26 +1,29 @@
 """This is a plugin to use Auto-GPT with Crypto."""
+import ccxt
+from mnemonic import Mnemonic
+from web3 import Web3, HTTPProvider
+from eth_account import Account
+import json
+import requests
+from eth_abi.exceptions import DecodingError
+from eth_abi.packed import encode_packed
+import os
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
 
-# Crypto
-import os
-from eth_abi.packed import encode_packed
-from eth_abi.exceptions import DecodingError
-import requests
-import json
-from eth_account import Account
-from web3 import Web3, HTTPProvider
-from mnemonic import Mnemonic
-
-
 PromptGenerator = TypeVar("PromptGenerator")
+
+# Crypto
 
 infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
 mnemonic_phrase = os.getenv('ETH_WALLET_PRIVATE_KEY')
 etherscan_api = os.getenv('ETHERSCAN_API_KEY')
 lunarcrush_api = os.getenv('LUNARCRUSH_API_KEY')
+kraken_api = os.getenv('KRAKEN_API_KEY')
+kraken_secret = os.getenv('KRAKEN_SECRET')
 network = os.getenv('ETH_NETWORK')
+exchanges = os.getenv('CRYPTO_EXCHANGES')
 endpoint = f"https://{network}.infura.io/v3/{infura_api}"
 
 # Connect to Ethereum node using Infura
@@ -97,6 +100,20 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             "get_nft_of_the_day",
             {},
             self.get_nft_of_the_day
+        ),
+        prompt.add_command(
+            "Available Crypto Exchanges",
+            "available_crypto_exchanges",
+            {},
+            self.available_crypto_exchanges
+        ),
+        prompt.add_command(
+            "Balance on Kraken",
+            "balance_on_kraken",
+            {
+                "symbol": "<symbol>"
+            },
+            self.balance_on_kraken
         ),
         # prompt.add_command(
         #     "Stake Tokens",
@@ -283,7 +300,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         """
         pass
 
-    # Crypto
+    # Crypto Wallet Interactions
 
     def get_eth_balance(address: str) -> float:
         payload = {
@@ -582,6 +599,8 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
     #     return f"{amount} {token_symbol} tokens staked in contract {staking_contract_address}; transaction hash: {tx_hash}"
 
+    # LunarCrush
+
     def get_coin_of_the_day(self) -> float:
 
         url = "https://lunarcrush.com/api3/coinoftheday"
@@ -596,7 +615,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         else:
             raise Exception(
                 f"Failed to get coin of the day from LunarCrush; status code {response.status_code}")
-    
+
     def get_nft_of_the_day(self) -> float:
 
         url = "https://lunarcrush.com/api3/nftoftheday"
@@ -611,3 +630,43 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         else:
             raise Exception(
                 f"Failed to get NFT of the day from LunarCrush; status code {response.status_code}")
+
+    # Exchange Trading
+
+    def available_crypto_exchanges(self) -> str:
+        try:
+            # retrieve environment variable containing comma-separated values
+            exchanges = os.environ.get("EXCHANGES")
+            if not exchanges:  # check if exchanges is empty or not set
+                return "Set EXCHANGES in the .env file"
+            # split the values using the comma delimiter and store them in a list
+            values_list = exchanges.split(",")
+            # get a list of all exchanges available in ccxt library
+            ccxt_exchanges = [exchange.lower() for exchange in ccxt.exchanges]
+            # create an empty list to store the exchanges that are not available in ccxt
+            not_available_exchanges = []
+            for item in values_list:  # iterate through the values in the list
+                # convert exchange name to lowercase after removing any leading or trailing whitespace
+                exchange_name = item.strip().lower()
+                if exchange_name not in ccxt_exchanges:  # check if the exchange is not available in ccxt
+                    # append the exchange to the not available exchanges list
+                    not_available_exchanges.append(exchange_name)
+            if not_available_exchanges:  # check if there are any exchanges that are not available in ccxt
+                # return the list of exchanges that are not available in ccxt
+                return f'Please review the exchanges.txt and add the correct exchanges to the .env: {not_available_exchanges}'
+            else:
+                return ccxt_exchanges  # return the list of all exchanges available in ccxt
+        except Exception as e:
+            return f"An error occurred while retrieving available exchanges: {str(e)}"
+
+    def balance_on_kraken(self) -> str:
+        try:
+            kraken = ccxt.kraken({
+                'apiKey': kraken_api,
+                'secret': kraken_secret,
+            })
+            balance = kraken.fetch_balance()
+           
+            return balance
+        except Exception as e:
+            return f"An error occurred while retrieving balance: {str(e)}"
