@@ -48,7 +48,7 @@ If you haven't already, clone the [Auto-GPT](https://github.com/Significant-Grav
 You might have to run this in the Auto-GPT file if you get an error saying "No Moudle Found".
 
 ```bash
-pip install web3 eth-abi
+pip install eth-account
 ```
 
 ### 5. Copy the Zip file into the Auto-GPT Plugin folder
@@ -82,12 +82,12 @@ ETH_WALLET_PRIVATE_KEY=
 ETH_NETWORK=
 ```
 
-- Create a [Infura](https://infuro.io) account.
+- Create a [Infura](https://infura.io) account.
 - Create a [Etherscan](https://etherscan.io) account.
 - Set `INFURA_API_KEY` to your Infura account ID.
 - Set `ETHERSCAN_API_KEY` to your Etherscan API Key.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
-- Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum Private Key.
+- Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum Private Key, use your mnemonic key in this [generator](https://iancoleman.io/bip39/) and paste the seed here.
 - Set `ETH_NETWORK` to your Ethereum Network (mainnet or sepolia).
 ### 10. Allowlist Plugin
 
