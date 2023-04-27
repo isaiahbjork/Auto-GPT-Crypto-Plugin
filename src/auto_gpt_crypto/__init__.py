@@ -51,7 +51,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         self._description = "This is a plugin for Auto-GPT-Crypto."
 
     def post_prompt(self, prompt: PromptGenerator) -> PromptGenerator:
-        
+
         prompt.add_command(
             "Send ETH",
             "send_eth",
@@ -381,17 +381,14 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
     # Crypto Wallet Interactions
 
-    def create_wallet():
+    def create_wallet(self):
         # Generate a new Ethereum private key
-        private_key = Account.create().privateKey
-
-        # Get the account associated with the private key
-        account = Account.from_key(private_key)
-
+        acct, mnemonic = Account.create_with_mnemonic()
         # Save the address and private key as a JSON object
         wallet = {
-            "address": account.address,
-            "private_key": private_key.hex(),
+            "address": acct.address,
+            "private_key": acct.key.hex(),
+            "mnemonic": mnemonic
         }
 
         return wallet
@@ -965,7 +962,8 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
     def stake_tokens(token_address: str, staking_contract_address: str, sender_address: str, amount: float) -> str:
         # Connect to Ethereum network
-        w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
+        w3 = Web3(Web3.HTTPProvider(
+            'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
 
         # Set the Etherscan API key and endpoint
         api_key = 'YOUR_ETHERSCAN_API_KEY'
@@ -993,7 +991,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         # Build transaction data
         try:
             approve_data = encode_packed(['address', 'uint256'], [
-                                        staking_contract_address, amount_units])
+                staking_contract_address, amount_units])
             contract.functions.approve(staking_contract_address, amount_units).buildTransaction({
                 'from': sender_address,
                 'nonce': w3.eth.getTransactionCount(sender_address),
