@@ -17,3 +17,5 @@ get_my_nfts
 get_nfts
 stake_tokens
 send_tokens
+purchase_tokens
+create_wallet
