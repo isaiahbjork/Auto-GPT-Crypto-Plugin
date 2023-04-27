@@ -1,22 +1,26 @@
 # Auto-GPT Crypto Plugin 📈
 
+⚠️ WARNING: NOT 100% COMPLETE
+
 The AutoGPT Crypto Plugin is a software tool that enables traders to connect their Crypto wallet or exchange to Auto-GPT.
+
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/isaiahbjork/Auto-GPT-Crypto-Plugin?style=social)](https://github.com/isaiahbjork/Auto-GPT-Crypto-Plugin/stargazers)
 
 ## 💡 Key Features:
 
 - **Get ETH Balance**
-- **Buy ERC-20 Tokens**
-- **Swap Tokens**
-- **Search Top Holders**
-- **Get Wallet Token Holdings**
+- **Get Wallet Token Holdings** (ETH, BSC, Fantom, Avalanche, Polygon, Arbitrum, Syscoin, Optimism)
+- **Get Wallet NFT Holdings**
 - **Get Coin/NFT of The Day**
-- **Stake Tokens**
-- **Send Tokens**
-- **Get Coins By Market Cap**
-- **Get New Tokens**
-- **Trade on Exchanges**
+- **Buy ERC-20 Tokens** (In-Progress)
+- **Swap Tokens**  (In-Progress)
+- **Search Top Holders**  (In-Progress)
+- **Stake Tokens** (In-Progress)
+- **Send Tokens**  (In-Progress)
+- **Get Coins By Market Cap**  (In-Progress)
+- **Get New Tokens**  (In-Progress)
+- **Trade on Exchanges**  (In-Progress)
 
 ## 🔧 Installation
 
@@ -82,7 +86,6 @@ ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
 ETH_NETWORK=
 LUNAR_CRUSH_API_KEY=
-CRYPTO_NEWS_API_KEY=
 ### Exchanges
 EXCHANGES=
 KRAKEN_API_KEY=
@@ -94,11 +97,9 @@ COINBASE_SECRET=
 - Create a [Infura](https://infura.io) account.
 - Create a [Etherscan](https://etherscan.io) account.
 - Create a [LunarCrush](https://lunarcrush.com) account.
-- Create a [Crypto News API](https://cryptonews-api.com) account (Free Trial then paid).
 - Set `INFURA_API_KEY` to your Infura account ID.
 - Set `ETHERSCAN_API_KEY` to your Etherscan API Key.
 - Set `LUNAR_CRUSH_API_KEY` to your LunarCrush API Key.
-- Set `CRYPTO_NEWS_API_KEY` to your Crypto News API Key.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
 - Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum mnemonic.
 - Set `ETH_NETWORK` to your Ethereum Network (mainnet or sepolia).
@@ -117,6 +118,9 @@ In your `.env` search for `ALLOWLISTED_PLUGINS` and add this Plugin:
 #ALLOWLISTED_PLUGINS - Sets the listed plugins that are allowed (Example: plugin1,plugin2,plugin3)
 ALLOWLISTED_PLUGINS=AutoGPTCryptoPlugin
 ```
+
+### 11. Review Available Commands
+You can review the available commands [here](/src/auto_gpt_crypto/commands.txt).
 
 ## 🧪 Test the Auto-GPT Crypto Plugin
 
