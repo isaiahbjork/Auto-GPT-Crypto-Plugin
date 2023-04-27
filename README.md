@@ -106,7 +106,8 @@ COINBASE_SECRET=
 - Set `EXCHANGES` to the crypto exchanges where you have an account. Review available [exchanges](/src/auto_gpt_crypto/exchanges.txt). (Example: binance,kraken,bybit)
 - Set `KRAKEN_API_KEY` to your Kraken API Key.
 - Set `KRAKEN_SECRET` to your Kraken Secret.
-
+- Set `COINBASE_API_KEY` to your Coinbase API Key.
+- Set `COINBASE_SECRET` to your Coinbase Secret.
 ### 10. Allowlist Plugin
 
 In your `.env` search for `ALLOWLISTED_PLUGINS` and add this Plugin:
