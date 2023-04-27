@@ -57,7 +57,8 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             "send_eth",
             {
                 "recipient_address": "<recipient_address>",
-                "amount": "<amount>"
+                "amount": "<amount>",
+                "private_key": "<private_key>"
             },
             self.send_eth
         ),
@@ -382,9 +383,10 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     # Crypto Wallet Interactions
 
     def create_wallet(self):
-        # Generate a new Ethereum private key
+        # Generate a new Ethereum account with a mnemonic phrase
         acct, mnemonic = Account.create_with_mnemonic()
-        # Save the address and private key as a JSON object
+
+        # Save the address, private key, and mnemonic as a JSON object
         wallet = {
             "address": acct.address,
             "private_key": acct.key.hex(),
@@ -393,7 +395,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
         return wallet
 
-    def get_eth_balance(address: str) -> float:
+    def get_eth_balance(self, address: str) -> float:
         payload = {
             "jsonrpc": "2.0",
             "method": "eth_getBalance",
@@ -431,98 +433,72 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             raise Exception(
                 f"Failed to get ETH balance for {my_address}; status code {response.status_code}")
 
-    def send_eth(self, recipient_address: str, amount: float) -> str:
-        mnemo = Mnemonic("english")
-        seed = mnemo.to_seed(mnemonic_phrase)
-        acct = Account.from_seed(seed)
-        private_key = acct.privateKey.hex()
+    def send_eth(self, recipient_address: str, private_key: str, amount: float) -> str:
+        # Set up a Web3 instance using an Infura provider
+        w3 = Web3(Web3.HTTPProvider(endpoint))
 
-        try:
-            # Get the transaction count (nonce) for the sender address
-            nonce = w3.eth.getTransactionCount(my_address)
+        # Get the sender's account from the private key
+        sender_account = Account.from_key(private_key)
 
-            # Prepare the transaction
-            transaction = {
-                'to': recipient_address,
-                'value': w3.toWei(amount, 'ether'),
-                'gas': 21000,  # Standard gas limit for transferring Ether
-                'gasPrice': w3.eth.gasPrice,
-                'nonce': nonce,
-                'chainId': w3.eth.chainId,
-            }
-            # Sign the transaction using the sender's private key
-            signed_tx = Account.sign_transaction(transaction, private_key)
+        # Check if the sender has enough balance
+        sender_balance = w3.eth.get_balance(sender_account.address)
+        amount_wei = w3.to_wei(amount, 'ether')
+        if sender_balance < amount_wei:
+            return f"Insufficient balance."
 
-            # Send the signed transaction
-            transaction_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        # Get the current nonce for the sender's address
+        nonce = w3.eth.get_transaction_count(sender_account.address)
 
-            # Wait for the transaction to be mined and get the transaction receipt
-            transaction_receipt = w3.eth.waitForTransactionReceipt(transaction_hash)
+        # Prepare the transaction
+        transaction = {
+            'to': recipient_address,
+            'value': amount_wei,
+            'gas': 21000,
+            'gasPrice': w3.eth.gas_price,
+            'nonce': nonce,
+            'chainId': w3.eth.chain_id,
+        }
 
-            # Print the transaction receipt
-            print(json.dumps(transaction_receipt, indent=2))
+        # Sign the transaction
+        signed_transaction = sender_account.sign_transaction(transaction)
 
-            return f"Transaction hash: {transaction_hash}"
+        # Send the transaction
+        transaction_hash = w3.eth.send_raw_transaction(
+            signed_transaction.rawTransaction)
 
-        except Exception as e:
-            return f"An error occurred: {e}"
+        return f"Transaction sent. Transaction hash: {transaction_hash.hex()}"
 
-    def purchase_tokens(token_address: str, amount_eth: float) -> str:
-        # Set the Etherscan API key and endpoint
-        api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
+    def purchase_tokens(private_key: str, token_sale_address: str, amount_eth: float, gas: int = 21000) -> str:
+        # Set up a Web3 instance using the testnet provider
+        w3 = Web3(Web3.HTTPProvider(endpoint))
 
-        # Send the API request to get the contract ABI
-        try:
-            response = requests.get(api_endpoint)
-            response_json = response.json()
-            if response_json['status'] != '1':
-                return f"API error: {response_json['message']}"
-            contract_abi = response_json['result']
-        except Exception as e:
-            return f"API request failed: {e}"
+        # Get the sender's account from the private key
+        sender_account = Account.from_key(private_key)
 
-        # Convert amount to token units
-        try:
-            contract = w3.eth.contract(
-                address=token_address, abi=contract_abi)
-            token_decimals = contract.functions.decimals().call()
-            amount_units = int(amount_eth * 10 ** token_decimals)
-        except Exception as e:
-            return f"Failed to convert amount to token units: {e}"
+        # Get the current nonce for the sender's address
+        nonce = w3.eth.get_transaction_count(sender_account.address)
 
-        # Build transaction data
-        try:
-            transfer_data = encode_abi(
-                '(address,uint256)', (my_address, amount_units))
-            tx_data = contract.functions.transfer(my_address, amount_units).buildTransaction({
-                'nonce': w3.eth.getTransactionCount(w3.eth.accounts[0]),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': transfer_data
-            })
-        except Exception as e:
-            return f"Failed to build transaction data: {e}"
+        # Calculate the purchase amount in wei
+        purchase_amount_wei = w3.to_wei(amount_eth, "ether")
 
-        # Sign transaction
-        try:
-            signed_tx = w3.eth.account.sign_transaction(
-                tx_data, private_key=private_key)
-        except Exception as e:
-            return f"Failed to sign transaction: {e}"
+        # Prepare the transaction
+        transaction = {
+            "to": token_sale_address,
+            "value": purchase_amount_wei,
+            "gas": gas,  # You may need to adjust the gas limit based on the token sale contract
+            "gasPrice": w3.eth.gas_price,
+            "nonce": nonce,
+            "chainId": w3.eth.chain_id,
+        }
 
-        # Send transaction
-        try:
-            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        except Exception as e:
-            return f"Failed to send transaction: {e}"
+        # Sign the transaction
+        signed_transaction = sender_account.sign_transaction(transaction)
 
-        # Get the token symbol
-        try:
-            token_symbol = contract.functions.symbol().call()
-        except Exception as e:
-            return f"Failed to get token symbol: {e}"
+        # Send the transaction
+        transaction_hash = w3.eth.send_raw_transaction(
+            signed_transaction.rawTransaction)
 
-        return f"{amount_eth} ETH converted to {amount_units} {token_symbol} tokens and sent to {recipient_address}; transaction hash: {tx_hash.hex()}"
+        return f"Transaction sent. Transaction hash: {transaction_hash.hex()}"
 
     def get_eth_token_balances(self, wallet_address: str) -> dict:
         try:

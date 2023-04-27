@@ -14,6 +14,7 @@ The AutoGPT Crypto Plugin is a software tool that enables traders to connect the
 - **Get Wallet NFT Holdings**
 - **Get Coin/NFT of The Day**
 - **Create Wallet**
+- **Send ETH**
 - **Buy ERC-20 Tokens** (In-Progress)
 - **Swap Tokens**  (In-Progress)
 - **Search Top Holders**  (In-Progress)
@@ -22,6 +23,7 @@ The AutoGPT Crypto Plugin is a software tool that enables traders to connect the
 - **Get Coins By Market Cap**  (In-Progress)
 - **Get New Tokens**  (In-Progress)
 - **Trade on Exchanges**  (In-Progress)
+- **Telegram Crypto Groups Listener**  (In-Progress)
 
 
 ## 🔧 Installation
