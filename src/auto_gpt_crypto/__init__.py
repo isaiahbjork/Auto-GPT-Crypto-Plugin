@@ -6,15 +6,8 @@
 # 5. EXCHANGE TRADING
 # 6. TELEGRAM
 # 7. LUNARCRUSH
-import ccxt
 from web3 import Web3, HTTPProvider
-import json
-import requests
-import asyncio
 import os
-from eth_abi.exceptions import DecodingError
-from eth_abi.packed import encode_packed
-from eth_account import Account
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
 from uniswap import Uniswap
@@ -31,7 +24,7 @@ PromptGenerator = TypeVar("PromptGenerator")
 
 infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
-private_key = os.getenv('ETH_WALLET_PRIVATE_KEY')
+my_private_key = os.getenv('ETH_WALLET_PRIVATE_KEY')
 etherscan_api = os.getenv('ETHERSCAN_API_KEY')
 lunarcrush_api = os.getenv('LUNARCRUSH_API_KEY')
 telegram_api_id = os.getenv('TELEGRAM_API_ID')
