@@ -30,13 +30,14 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **Stake Tokens** (In-Progress)
 - **Send Tokens**  (In-Progress)
 - **Transaction Data**  (In-Progress)
+- **Get Token Holders**  (In-Progress)
 - **Get Coins By Market Cap**  (In-Progress)
 - **Trade on Exchanges**  (In-Progress)
 - **Fetch Candlesticks**  (In-Progress)
 - **Indicators**  (In-Progress)
 - **Crypto News**  (In-Progress)
-- **Purchase NFT's**  (In-Progress)
-
+- **Purchase NFT**  (In-Progress)
+- **NFT Metadata**  (In-Progress)
 ## 🔧 Installation
 
 Follow these steps to configure the Auto-GPT Crypto Plugin:

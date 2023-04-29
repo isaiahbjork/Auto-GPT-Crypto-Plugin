@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
 from uniswap import Uniswap
 from telethon import TelegramClient
+from .nfts import get_my_nfts, get_nfts, get_nft_of_the_day, get_eth_nft_metadata
 
 PromptGenerator = TypeVar("PromptGenerator")
 
@@ -99,7 +100,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             "Get NFT of The Day",
             "get_nft_of_the_day",
             {},
-            self.get_nft_of_the_day
+            self.get_nft_of_the_day_wrapper
         ),
         prompt.add_command(
             "Available Crypto Exchanges",
@@ -127,7 +128,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             "Get My NFT's",
             "get_my_nfts",
             {},
-            self.get_my_nfts
+            self.get_my_nfts_wrapper
         ),
         prompt.add_command(
             "Get NFT's",
@@ -135,7 +136,16 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             {
                 "wallet_address": "<wallet_address>"
             },
-            self.get_nfts
+            self.get_nfts_wrapper
+        ),
+        prompt.add_command(
+            "Get ETH NFT Metadata",
+            "get_eth_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_eth_nft_metadata_wrapper
         ),
         prompt.add_command(
             "Get My ETH Balance",
@@ -833,82 +843,6 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         except Exception as e:
             return f"Failed to get Optimism token balances: {e}"
 
-    def get_my_nfts(self) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getNFTsByOwner="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getNFTsByOwner",
-                "params": {
-                    "blockchain": [],
-                    "walletAddress": my_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get ETH token balances: {e}"
-
-    def get_nfts(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getNFTsByOwner="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getNFTsByOwner",
-                "params": {
-                    "blockchain": [],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get ETH token balances: {e}"
-
     def send_tokens(token_address: str, recipient_address: str, amount: float) -> str:
         api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
 
@@ -1055,22 +989,21 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             raise Exception(
                 f"Failed to get coin of the day from LunarCrush; status code {response.status_code}")
 
-    def get_nft_of_the_day(self) -> float:
+    def get_nfts_wrapper(self, wallet_address: str) -> str:
+        nfts = get_nfts(wallet_address)
+        return nfts
 
-        url = "https://lunarcrush.com/api3/nftoftheday"
-        headers = {
-            'Authorization': f'Bearer {lunarcrush_api}'
-        }
+    def get_my_nfts_wrapper(self, wallet_address: str) -> str:
+        nfts = get_my_nfts(wallet_address)
+        return nfts
 
-        response = requests.request("GET", url, headers=headers)
+    def get_nft_of_the_day_wrapper(self) -> str:
+        data = get_nft_of_the_day(lunarcrush_api)
+        return data
 
-        if response.status_code == 200:
-            return response.text.encode('utf8')
-        else:
-            raise Exception(
-                f"Failed to get NFT of the day from LunarCrush; status code {response.status_code}")
-
-    # Telegram
+    def get_eth_nft_metadata_wrapper(self, contract_address: str, token_id:str) -> str:
+        data = get_eth_nft_metadata(contract_address, token_id)
+        return data
 
     def find_new_eth_tokens_wrapper(self):
         # Run the coroutine and return the result
