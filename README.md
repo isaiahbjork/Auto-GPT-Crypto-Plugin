@@ -7,6 +7,14 @@ The AutoGPT Crypto Plugin is a software tool that enables traders to connect the
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/isaiahbjork/Auto-GPT-Crypto-Plugin?style=social)](https://github.com/isaiahbjork/Auto-GPT-Crypto-Plugin/stargazers)
 
+<h2 align="center"> 💖 Help Support Auto-GPT Plugin's Development 💖</h2>
+<p align="center">
+If you can spare a coffee, you can help to cover the costs of developing Auto-GPT Plugins and help to push the boundaries of fully autonomous AI!
+Your support is greatly appreciated. Development of this free, open-source project is made possible by all the <a href="https://github.com/isaiahbjork/Auto-GPT-Crypto-Plugin/graphs/contributors">contributors</a> and <a href="https://github.com/sponsors/isaiahbjork">sponsors</a>. If you'd like to sponsor this project and have your avatar or company logo appear below <a href="https://github.com/sponsors/isaiahbjork">click here</a>.
+
+Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
+</p>
+
 ## 💡 Key Features:
 
 - **Get ETH Balance**
@@ -15,16 +23,19 @@ The AutoGPT Crypto Plugin is a software tool that enables traders to connect the
 - **Get Coin/NFT of The Day**
 - **Create Wallet**
 - **Send ETH**
-- **Buy ERC-20 Tokens** (In-Progress)
+- **Get New Tokens From Dextools**
+- **Telegram Crypto Groups Listener**
 - **Swap Tokens**  (In-Progress)
 - **Search Top Holders**  (In-Progress)
 - **Stake Tokens** (In-Progress)
 - **Send Tokens**  (In-Progress)
+- **Transaction Data**  (In-Progress)
 - **Get Coins By Market Cap**  (In-Progress)
-- **Get New Tokens**  (In-Progress)
 - **Trade on Exchanges**  (In-Progress)
-- **Telegram Crypto Groups Listener**  (In-Progress)
-
+- **Fetch Candlesticks**  (In-Progress)
+- **Indicators**  (In-Progress)
+- **Crypto News**  (In-Progress)
+- **Purchase NFT's**  (In-Progress)
 
 ## 🔧 Installation
 
@@ -57,7 +68,7 @@ If you haven't already, clone the [Auto-GPT](https://github.com/Significant-Grav
 You might have to run this in the Auto-GPT file if you get an error saying "No Moudle Found".
 
 ```bash
-pip install web3 eth-account ccxt
+pip install web3 eth-account ccxt telethon uniswap-python
 ```
 
 ### 5. Copy the Zip file into the Auto-GPT Plugin folder
@@ -90,6 +101,8 @@ ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
 ETH_NETWORK=
 LUNAR_CRUSH_API_KEY=
+TELEGRAM_API_ID=
+TELEGRAM_API_HASH=
 ### Exchanges
 EXCHANGES=
 KRAKEN_API_KEY=
@@ -112,6 +125,19 @@ COINBASE_SECRET=
 - Set `KRAKEN_SECRET` to your Kraken Secret.
 - Set `COINBASE_API_KEY` to your Coinbase API Key.
 - Set `COINBASE_SECRET` to your Coinbase Secret.
+
+`Telegram Group Listener Setup`
+1. Create a [Telegram](https://telegram.com) account.
+2. Go to [https://my.telegram.org/auth](https://my.telegram.org/auth).
+3. Login and create an application.
+4. Set `TELEGRAM_API_ID` to your Telegram App ID.
+5. Set `TELEGRAM_API_HASH` to your Telegram App Hash.
+6. Join this [Telegram Group](https://t.me/DEXTNewPairsBot).
+7. You will be prompted to enter your phone number and code when you start up Auto-GPT. Make sure you enter your country code without the (+).
+8. You will get an error if you don't enter "n".
+```
+WARNNG Plugin TelegramClient found. But not in the allowlist... Load? (y/n): n
+```
 ### 10. Allowlist Plugin
 
 In your `.env` search for `ALLOWLISTED_PLUGINS` and add this Plugin:

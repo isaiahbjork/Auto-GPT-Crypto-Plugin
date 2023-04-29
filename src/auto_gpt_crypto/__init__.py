@@ -1,25 +1,28 @@
 """This is a plugin to use Auto-GPT with Crypto."""
 import ccxt
-from mnemonic import Mnemonic
 from web3 import Web3, HTTPProvider
-from eth_account import Account
 import json
 import requests
+import asyncio
+import os
 from eth_abi.exceptions import DecodingError
 from eth_abi.packed import encode_packed
-import os
+from eth_account import Account
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
+from uniswap import Uniswap
+from telethon import TelegramClient
+from .telegram import Telegram
 
 PromptGenerator = TypeVar("PromptGenerator")
-
-# Crypto
 
 infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
 mnemonic_phrase = os.getenv('ETH_WALLET_PRIVATE_KEY')
 etherscan_api = os.getenv('ETHERSCAN_API_KEY')
 lunarcrush_api = os.getenv('LUNARCRUSH_API_KEY')
+telegram_api_id = os.getenv('TELEGRAM_API_ID')
+telegram_api_hash = os.getenv('TELEGRAM_API_HASH')
 kraken_api = os.getenv('KRAKEN_API_KEY')
 kraken_secret = os.getenv('KRAKEN_SECRET')
 coinbase_api = os.getenv('COINBASE_API_KEY')
@@ -49,6 +52,15 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         self._name = "Auto-GPT-Crypto"
         self._version = "0.1.0"
         self._description = "This is a plugin for Auto-GPT-Crypto."
+        self.telegram = Telegram(telegram_api_id, telegram_api_hash)
+        self.client = TelegramClient('Auto-GPT Crypto', telegram_api_id, telegram_api_hash)
+        
+        async def start_telegram():
+            print('Starting Telegram Listener...')
+            await self.client.start()
+
+        self.client.loop.run_until_complete(start_telegram())
+       
 
     def post_prompt(self, prompt: PromptGenerator) -> PromptGenerator:
 
@@ -69,13 +81,15 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             self.create_wallet
         ),
         prompt.add_command(
-            "Purchase ERC-20 Token",
-            "purchase_tokens",
+            "Swap Tokens",
+            "swap_tokens",
             {
-                "token_address": "<token_address>",
-                "amount_in_eth": "<amount_in_eth>"
+                "private_key": "<private_key",
+                "token_address_in": "<token_address_in>",
+                "token_address_out": "<token_address_out>",
+                "amount": "<amount>"
             },
-            self.purchase_tokens
+            self.swap_tokens
         ),
         prompt.add_command(
             "Get Coin of The Day",
@@ -214,8 +228,56 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 "amount": "<amount>"
             },
             self.send_tokens
+        ),
+
+        prompt.add_command(
+            "Find New ETH Tokens",
+            "find_new_eth_tokens",
+            {},
+            self.find_new_eth_tokens_wrapper
         )
+        prompt.add_command(
+            "Find Telegram Chat Messages",
+            "find_telegram_chat_messages",
+            {
+                "chat_name": "<chat_name>"
+            },
+            self.find_telegram_chat_messages_wrapper
+        )
+        
         return prompt
+    
+    def find_new_eth_tokens_wrapper(self):
+        # Run the coroutine and return the result
+        return self.client.loop.run_until_complete(self.get_new_eth_tokens())
+    
+    def find_telegram_chat_messages_wrapper(self):
+        # Run the coroutine and return the result
+        return self.client.loop.run_until_complete(self.find_telegram_chat_messages())
+
+    async def find_new_eth_tokens(self) -> List[str]:
+        entity = await self.client.get_entity('DEXTNewPairsBot')
+        messages = await self.client.get_messages(entity, 20)
+        messages_list = []  # Create an empty list to store messages
+
+        for message in messages:
+            messages_list.append(str(message.message))
+        
+        # Convert the messages_list to a JSON string
+        messages_json = json.dumps(messages_list)
+        return messages_json
+    
+    async def find_telegram_chat_messages(self, chat_name: str) -> List[str]:
+        entity = await self.client.get_entity(chat_name)
+        messages = await self.client.get_messages(entity, 20)
+        messages_list = []  # Create an empty list to store messages
+
+        for message in messages:
+            messages_list.append(str(message.message))
+        
+        # Convert the messages_list to a JSON string
+        messages_json = json.dumps(messages_list)
+        return messages_json
 
     def can_handle_post_prompt(self) -> bool:
         """This method is called to check that the plugin can
@@ -468,37 +530,38 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
         return f"Transaction sent. Transaction hash: {transaction_hash.hex()}"
 
-    def purchase_tokens(private_key: str, token_sale_address: str, amount_eth: float, gas: int = 21000) -> str:
-        # Set up a Web3 instance using the testnet provider
+    def swap_tokens(self, private_key: str, token_address_in: str, token_address_out: str, amount_in: float, slippage: float) -> str:
         w3 = Web3(Web3.HTTPProvider(endpoint))
+        account = Account.from_key(private_key)
+        address = account.address
+        uniswap_wrapper = Uniswap(
+            address=address, private_key=private_key, version=2, web3=w3)
 
-        # Get the sender's account from the private key
-        sender_account = Account.from_key(private_key)
+        # Calculate the minimum amount of output tokens you want to receive
+        amount_out_min = int(amount_in * (1 - slippage))
 
-        # Get the current nonce for the sender's address
-        nonce = w3.eth.get_transaction_count(sender_account.address)
+        # Set the deadline (in seconds)
+        deadline = w3.eth.getBlock('latest')['timestamp'] + 180  # 3 minutes from now
 
-        # Calculate the purchase amount in wei
-        purchase_amount_wei = w3.to_wei(amount_eth, "ether")
+        # Approve the Uniswap router to spend your input tokens if needed
+        token_in = w3.eth.contract(address=token_address_in, abi=ERC20_ABI)
+        spender = uniswap_wrapper.router_address
 
-        # Prepare the transaction
-        transaction = {
-            "to": token_sale_address,
-            "value": purchase_amount_wei,
-            "gas": gas,  # You may need to adjust the gas limit based on the token sale contract
-            "gasPrice": w3.eth.gas_price,
-            "nonce": nonce,
-            "chainId": w3.eth.chain_id,
-        }
+        allowance = token_in.functions.allowance(address, spender).call()
+        if allowance < amount_in:
+            approve_tx = token_in.functions.approve(spender, w3.toWei('1000000000', 'ether')).buildTransaction({
+                'from': address,
+                'gas': 250000,
+                'gasPrice': w3.toWei('5', 'gwei'),
+                'nonce': w3.eth.getTransactionCount(address),
+            })
+            signed_tx = account.sign_transaction(approve_tx)
+            w3.eth.sendRawTransaction(signed_tx.rawTransaction)
 
-        # Sign the transaction
-        signed_transaction = sender_account.sign_transaction(transaction)
-
-        # Send the transaction
-        transaction_hash = w3.eth.send_raw_transaction(
-            signed_transaction.rawTransaction)
-
-        return f"Transaction sent. Transaction hash: {transaction_hash.hex()}"
+        # Swap tokens
+        tx_hash = uniswap_wrapper.make_trade(
+            TOKEN_IN_ADDRESS, TOKEN_OUT_ADDRESS, AMOUNT_IN, amount_out_min, deadline)
+        print(f'Swap transaction sent: {tx_hash}')
 
     def get_eth_token_balances(self, wallet_address: str) -> dict:
         try:
@@ -1041,6 +1104,8 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             raise Exception(
                 f"Failed to get NFT of the day from LunarCrush; status code {response.status_code}")
 
+    
+        
     # Exchange Trading
 
     def available_crypto_exchanges(self) -> str:
