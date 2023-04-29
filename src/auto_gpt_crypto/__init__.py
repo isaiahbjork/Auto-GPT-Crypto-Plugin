@@ -249,7 +249,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     
     def find_new_eth_tokens_wrapper(self):
         # Run the coroutine and return the result
-        return self.client.loop.run_until_complete(self.get_new_eth_tokens())
+        return self.client.loop.run_until_complete(self.find_new_eth_tokens())
     
     def find_telegram_chat_messages_wrapper(self):
         # Run the coroutine and return the result
