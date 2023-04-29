@@ -1,4 +1,11 @@
 """This is a plugin to use Auto-GPT with Crypto."""
+# 1. CRYPTO WALLET INTERACTIONS
+# 2. BALANCES
+# 3. NFTS
+# 4. TRANSACTIONS
+# 5. EXCHANGE TRADING
+# 6. TELEGRAM
+# 7. LUNARCRUSH
 import ccxt
 from web3 import Web3, HTTPProvider
 import json
@@ -12,15 +19,19 @@ from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
 from uniswap import Uniswap
 from telethon import TelegramClient
-from .nfts import get_my_nfts, get_nfts, get_nft_of_the_day, get_eth_nft_metadata, get_arbitrum_nft_metadata, get_avalanche_nft_metadata, get_bsc_nft_metadata, get_fantom_nft_metadata, get_optimism_nft_metadata, get_polygon_nft_metadata, get_syscoin_nft_metadata
-from .transactions import get_eth_transaction_data
-from .lunarcrush import get_coin_of_the_day
+from .nfts import Nfts
+from .transactions import Transactions
+from .lunarcrush import LunarCrush
+from .exchanges import Exchanges
+from .balances import Balances
+from .wallet import Wallet
+from .telegram import Telegram
 
 PromptGenerator = TypeVar("PromptGenerator")
 
 infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
-mnemonic_phrase = os.getenv('ETH_WALLET_PRIVATE_KEY')
+private_key = os.getenv('ETH_WALLET_PRIVATE_KEY')
 etherscan_api = os.getenv('ETHERSCAN_API_KEY')
 lunarcrush_api = os.getenv('LUNARCRUSH_API_KEY')
 telegram_api_id = os.getenv('TELEGRAM_API_ID')
@@ -30,13 +41,10 @@ kraken_secret = os.getenv('KRAKEN_SECRET')
 coinbase_api = os.getenv('COINBASE_API_KEY')
 coinbase_secret = os.getenv('COINBASE_SECRET')
 network = os.getenv('ETH_NETWORK')
-exchanges = os.getenv('CRYPTO_EXCHANGES')
 endpoint = f"https://{network}.infura.io/v3/{infura_api}"
 
 # Connect to Ethereum node using Infura
 w3 = Web3(HTTPProvider(endpoint))
-
-Account.enable_unaudited_hdwallet_features()
 
 
 class Message(TypedDict):
@@ -220,7 +228,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         pass
 
     def post_prompt(self, prompt: PromptGenerator) -> PromptGenerator:
-
+       # 1. CRYPTO WALLET INTERACTIONS
         prompt.add_command(
             "Send ETH",
             "send_eth",
@@ -229,58 +237,130 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 "amount": "<amount>",
                 "private_key": "<private_key>"
             },
-            self.send_eth
+            self.send_eth_wrapper
         ),
         prompt.add_command(
             "Create Wallet",
             "create_wallet",
             {},
-            self.create_wallet
+            self.create_wallet_wrapper
         ),
+        # prompt.add_command(
+        #     "Swap Tokens",
+        #     "swap_tokens",
+        #     {
+        #         "private_key": "<private_key",
+        #         "token_address_in": "<token_address_in>",
+        #         "token_address_out": "<token_address_out>",
+        #         "amount": "<amount>"
+        #     },
+        #     self.swap_tokens
+        # ),
+        # prompt.add_command(
+        #     "Stake Tokens",
+        #     "stake_tokens",
+        #     {
+        #         "token_address": "<token_address>",
+        #         "staking_contract_address": "<staking_contract_address>",
+        #         "amount": "<amount>"
+        #     },
+        #     self.stake_tokens
+        # ),
+        # prompt.add_command(
+        #     "Send Tokens",
+        #     "send_tokens",
+        #     {
+        #         "token_address": "<token_address>",
+        #         "recipient_address": "<recipient_address>",
+        #         "amount": "<amount>"
+        #     },
+        #     self.send_tokens
+        # ),
+        # 2. BALANCES
         prompt.add_command(
-            "Swap Tokens",
-            "swap_tokens",
-            {
-                "private_key": "<private_key",
-                "token_address_in": "<token_address_in>",
-                "token_address_out": "<token_address_out>",
-                "amount": "<amount>"
-            },
-            self.swap_tokens
-        ),
-        prompt.add_command(
-            "Get Coin of The Day",
-            "get_coin_of_the_day",
+            "Get My ETH Balance",
+            "get_my_eth_balance",
             {},
-            self.get_coin_of_the_day_wrapper
+            self.get_my_eth_balance_wrapper
         ),
+        prompt.add_command(
+            "Get ETH Balance",
+            "get_eth_balance",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_eth_balance_wrapper
+        ),
+        prompt.add_command(
+            "Get ETH Token Balances",
+            "get_eth_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_eth_token_balances_wrapper
+        ),
+        prompt.add_command(
+            "Get Polygon Token Balances",
+            "get_polygon_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_polygon_token_balances_wrapper
+        ),
+        prompt.add_command(
+            "Get BSC Token Balances",
+            "get_bsc_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_bsc_token_balances_wrapper
+        ),
+        prompt.add_command(
+            "Get Fantom Token Balances",
+            "get_fantom_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_fantom_token_balances_wrapper
+        ),
+        prompt.add_command(
+            "Get Avalanche Token Balances",
+            "get_avalanche_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_avalanche_token_balances_wrapper
+        ),
+        prompt.add_command(
+            "Get Syscoin Token Balances",
+            "get_syscoin_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_syscoin_token_balances_wrapper
+        ),
+        prompt.add_command(
+            "Get Arbitrum Token Balances",
+            "get_arbitrum_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_arbitrum_token_balances_wrapper
+        ),
+        prompt.add_command(
+            "Get Optimism Token Balances",
+            "get_optimism_token_balances",
+            {
+                "wallet_address": "<wallet_address>"
+            },
+            self.get_optimism_token_balances_wrapper
+        ),
+        # 3. NFTs
         prompt.add_command(
             "Get NFT of The Day",
             "get_nft_of_the_day",
             {},
             self.get_nft_of_the_day_wrapper
-        ),
-        prompt.add_command(
-            "Available Crypto Exchanges",
-            "available_crypto_exchanges",
-            {},
-            self.available_crypto_exchanges
-        ),
-        prompt.add_command(
-            "Balance on Kraken",
-            "balance_on_kraken",
-            {
-                "symbol": "<symbol>"
-            },
-            self.balance_on_kraken
-        ),
-        prompt.add_command(
-            "Balance on Coinbase",
-            "balance_on_coinbase",
-            {
-                "symbol": "<symbol>"
-            },
-            self.balance_on_coinbase
         ),
         prompt.add_command(
             "Get My NFT's",
@@ -368,97 +448,38 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             },
             self.get_syscoin_nft_metadata_wrapper
         ),
+        # 4. TRANSACTIONS
         prompt.add_command(
-            "Get My ETH Balance",
-            "get_my_eth_balance",
+            "Get ETH transaction data",
+            "get_eth_transaction_data",
             {},
-            self.get_my_eth_balance
-        ),
-        prompt.add_command(
-            "Get ETH Balance",
-            "get_eth_balance",
-            {
-                "address": "<address>"
-            },
-            self.get_eth_balance
-        ),
-        prompt.add_command(
-            "Get ETH Token Balances",
-            "get_eth_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_eth_token_balances
-        ),
-        prompt.add_command(
-            "Get Polygon Token Balances",
-            "get_polygon_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_polygon_token_balances
-        ),
-        prompt.add_command(
-            "Get BSC Token Balances",
-            "get_bsc_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_bsc_token_balances
-        ),
-        prompt.add_command(
-            "Get Avalanche Token Balances",
-            "get_avalanche_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_avalanche_token_balances
-        ),
-        prompt.add_command(
-            "Get Syscoin Token Balances",
-            "get_syscoin_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_syscoin_token_balances
-        ),
-        prompt.add_command(
-            "Get Arbitrum Token Balances",
-            "get_arbitrum_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_arbitrum_token_balances
-        ),
-        prompt.add_command(
-            "Get Optimism Token Balances",
-            "get_optimism_token_balances",
-            {
-                "wallet_address": "<wallet_address>"
-            },
-            self.get_optimism_token_balances
-        ),
-        prompt.add_command(
-            "Stake Tokens",
-            "stake_tokens",
-            {
-                "token_address": "<token_address>",
-                "staking_contract_address": "<staking_contract_address>",
-                "amount": "<amount>"
-            },
-            self.stake_tokens
-        ),
-        prompt.add_command(
-            "Send Tokens",
-            "send_tokens",
-            {
-                "token_address": "<token_address>",
-                "recipient_address": "<recipient_address>",
-                "amount": "<amount>"
-            },
-            self.send_tokens
+            self.get_eth_transaction_data_wrapper
         ),
 
+        # 5. EXCHANGE TRADING
+        prompt.add_command(
+            "Available Crypto Exchanges",
+            "available_crypto_exchanges",
+            {},
+            self.available_crypto_exchanges
+        ),
+        prompt.add_command(
+            "Balance on Kraken",
+            "balance_on_kraken",
+            {
+                "symbol": "<symbol>"
+            },
+            self.balance_on_kraken
+        ),
+        prompt.add_command(
+            "Balance on Coinbase",
+            "balance_on_coinbase",
+            {
+                "symbol": "<symbol>"
+            },
+            self.balance_on_coinbase
+        ),
+        # 6. TELEGRAM
         prompt.add_command(
             "Find New ETH Tokens",
             "find_new_eth_tokens",
@@ -473,11 +494,12 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             },
             self.find_telegram_chat_messages_wrapper
         ),
+        # 7. LUNARCRUSH
         prompt.add_command(
-            "Get ETH transaction data",
-            "get_eth_transaction_data",
+            "Get Coin of The Day",
+            "get_coin_of_the_day",
             {},
-            self.get_eth_transaction_data_wrapper
+            self.get_coin_of_the_day_wrapper
         ),
 
         return prompt
@@ -490,710 +512,147 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         return True
 
 ################################################################################
-# CRYPTO WALLET INTERACTIONS
+# 1. CRYPTO WALLET INTERACTIONS
 ################################################################################
+    def send_eth_wrapper(self, recipient_address: str, amount: float, private_key: str) -> str:
+        data = Wallet.send_eth(recipient_address, private_key, amount, endpoint)
+        return data
 
-    def create_wallet(self):
-        # Generate a new Ethereum account with a mnemonic phrase
-        acct, mnemonic = Account.create_with_mnemonic()
+    def create_wallet_wrapper(self):
+        data = Wallet.create_wallet()
+        return data
 
-        # Save the address, private key, and mnemonic as a JSON object
-        wallet = {
-            "address": acct.address,
-            "private_key": acct.key.hex(),
-            "mnemonic": mnemonic
-        }
-
-        return wallet
-
-    def get_eth_balance(self, address: str) -> float:
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "eth_getBalance",
-            "params": [address, "latest"],
-            "id": 1
-        }
-        headers = {
-            "Content-Type": "application/json"
-        }
-        response = requests.post(endpoint, data=json.dumps(payload), headers=headers)
-        if response.status_code == 200:
-            balance_wei = int(response.json()["result"], 16)
-            balance_eth = balance_wei / 10 ** 18
-            return f'{balance_eth} ETH'
-        else:
-            raise Exception(
-                f"Failed to get ETH balance for {address}; status code {response.status_code}")
-
-    def get_my_eth_balance(self) -> float:
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "eth_getBalance",
-            "params": [my_address, "latest"],
-            "id": 1
-        }
-        headers = {
-            "Content-Type": "application/json"
-        }
-        response = requests.post(endpoint, data=json.dumps(payload), headers=headers)
-        if response.status_code == 200:
-            balance_wei = int(response.json()["result"], 16)
-            balance_eth = balance_wei / 10 ** 18
-            return f'{balance_eth} ETH'
-        else:
-            raise Exception(
-                f"Failed to get ETH balance for {my_address}; status code {response.status_code}")
-
-    def send_eth(self, recipient_address: str, private_key: str, amount: float) -> str:
-        # Set up a Web3 instance using an Infura provider
-        w3 = Web3(Web3.HTTPProvider(endpoint))
-
-        # Get the sender's account from the private key
-        sender_account = Account.from_key(private_key)
-
-        # Check if the sender has enough balance
-        sender_balance = w3.eth.get_balance(sender_account.address)
-        amount_wei = w3.to_wei(amount, 'ether')
-        if sender_balance < amount_wei:
-            return f"Insufficient balance."
-
-        # Get the current nonce for the sender's address
-        nonce = w3.eth.get_transaction_count(sender_account.address)
-
-        # Prepare the transaction
-        transaction = {
-            'to': recipient_address,
-            'value': amount_wei,
-            'gas': 21000,
-            'gasPrice': w3.eth.gas_price,
-            'nonce': nonce,
-            'chainId': w3.eth.chain_id,
-        }
-
-        # Sign the transaction
-        signed_transaction = sender_account.sign_transaction(transaction)
-
-        # Send the transaction
-        transaction_hash = w3.eth.send_raw_transaction(
-            signed_transaction.rawTransaction)
-
-        return f"Transaction sent. Transaction hash: {transaction_hash.hex()}"
-
-    def swap_tokens(self, private_key: str, token_address_in: str, token_address_out: str, amount_in: float, slippage: float) -> str:
-        w3 = Web3(Web3.HTTPProvider(endpoint))
-        account = Account.from_key(private_key)
-        address = account.address
-        uniswap_wrapper = Uniswap(
-            address=address, private_key=private_key, version=2, web3=w3)
-
-        # Calculate the minimum amount of output tokens you want to receive
-        amount_out_min = int(amount_in * (1 - slippage))
-
-        # Set the deadline (in seconds)
-        deadline = w3.eth.getBlock('latest')['timestamp'] + 180  # 3 minutes from now
-
-        # Approve the Uniswap router to spend your input tokens if needed
-        token_in = w3.eth.contract(address=token_address_in, abi=ERC20_ABI)
-        spender = uniswap_wrapper.router_address
-
-        allowance = token_in.functions.allowance(address, spender).call()
-        if allowance < amount_in:
-            approve_tx = token_in.functions.approve(spender, w3.toWei('1000000000', 'ether')).buildTransaction({
-                'from': address,
-                'gas': 250000,
-                'gasPrice': w3.toWei('5', 'gwei'),
-                'nonce': w3.eth.getTransactionCount(address),
-            })
-            signed_tx = account.sign_transaction(approve_tx)
-            w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-
-        # Swap tokens
-        tx_hash = uniswap_wrapper.make_trade(
-            TOKEN_IN_ADDRESS, TOKEN_OUT_ADDRESS, AMOUNT_IN, amount_out_min, deadline)
-        print(f'Swap transaction sent: {tx_hash}')
-
-    def get_eth_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["eth"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get ETH token balances: {e}"
-
-    def get_polygon_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["polygon"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get Polygon token balances: {e}"
-
-    def get_bsc_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["bsc"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get BSC token balances: {e}"
-
-    def get_fantom_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["fantom"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get Fantom token balances: {e}"
-
-    def get_avalanche_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["avalanche"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get Avalanche token balances: {e}"
-
-    def get_arbitrum_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["arbitrum"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get Arbitrum token balances: {e}"
-
-    def get_syscoin_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["syscoin"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get Syscoin token balances: {e}"
-
-    def get_optimism_token_balances(self, wallet_address: str) -> dict:
-        try:
-            url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance="
-
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "ankr_getAccountBalance",
-                "params": {
-                    "blockchain": ["optimism"],
-                    "walletAddress": wallet_address,
-                    "onlyWhitelisted": False
-                },
-                "id": 1
-            }
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
-
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-            assets = response_data['result']['assets']
-
-            token_info = []
-            for asset in assets:
-                token_name = asset['tokenName']
-                token_symbol = asset['tokenSymbol']
-                contract_address = asset['contractAddress']
-                token_balance = float(asset['balance'])
-                usd_balance = float(asset['balanceUsd'])
-                token_price_usd = float(asset['tokenPrice'])
-                token_info.append({'name': token_name, 'symbol': token_symbol,
-                                  'contract_address': contract_address, 'token_balance': token_balance, 'token_price_usd': token_price_usd, 'usd_balance': usd_balance})
-            return token_info
-
-        except Exception as e:
-            return f"Failed to get Optimism token balances: {e}"
-
-    def send_tokens(token_address: str, recipient_address: str, amount: float) -> str:
-        api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={etherscan_api}'
-
-        # Send the API request to get the contract ABI
-        try:
-            response = requests.get(api_endpoint)
-            response_json = response.json()
-            if response_json['status'] != '1':
-                return f"API error: {response_json['message']}"
-            contract_abi = response_json['result']
-        except Exception as e:
-            return f"API request failed: {e}"
-
-        # Convert amount to token units
-        try:
-            contract = w3.eth.contract(
-                address=token_address, abi=contract_abi)
-            token_decimals = contract.functions.decimals().call()
-            amount_units = int(amount * 10 ** token_decimals)
-        except Exception as e:
-            return f"Failed to convert amount to token units: {e}"
-
-        # Build transaction data
-        try:
-            transfer_data = encode_abi(
-                '(address,uint256)', (recipient_address, amount_units))
-            tx_data = contract.functions.transfer(recipient_address, amount_units).buildTransaction({
-                'nonce': w3.eth.getTransactionCount(my_address),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': transfer_data
-            })
-        except Exception as e:
-            return f"Failed to build transaction data: {e}"
-
-        # Sign transaction
-        try:
-            signed_tx = w3.eth.account.sign_transaction(
-                tx_data, private_key=private_key)
-        except Exception as e:
-            return f"Failed to sign transaction: {e}"
-
-        # Send transaction
-        try:
-            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        except Exception as e:
-            return f"Failed to send transaction: {e}"
-
-        # Get the token symbol
-        try:
-            token_symbol = contract.functions.symbol().call()
-        except Exception as e:
-            return f"Failed to get token symbol: {e}"
-
-        return f"{amount} {token_symbol} tokens sent from {my_address} to {recipient_address}; transaction hash: {tx_hash.hex()}"
-
-    def stake_tokens(token_address: str, staking_contract_address: str, sender_address: str, amount: float) -> str:
-        # Connect to Ethereum network
-        w3 = Web3(Web3.HTTPProvider(
-            'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
-
-        # Set the Etherscan API key and endpoint
-        api_key = 'YOUR_ETHERSCAN_API_KEY'
-        api_endpoint = f'https://api.etherscan.io/api?module=contract&action=getabi&address={token_address}&apikey={api_key}'
-
-        # Send the API request to get the contract ABI
-        try:
-            response = requests.get(api_endpoint)
-            response_json = response.json()
-            if response_json['status'] != '1':
-                return f"API error: {response_json['message']}"
-            contract_abi = response_json['result']
-        except Exception as e:
-            return f"API request failed: {e}"
-
-        # Convert amount to token units
-        try:
-            contract = w3.eth.contract(
-                address=token_address, abi=contract_abi)
-            token_decimals = contract.functions.decimals().call()
-            amount_units = int(amount * 10 ** token_decimals)
-        except Exception as e:
-            return f"Failed to convert amount to token units: {e}"
-
-        # Build transaction data
-        try:
-            approve_data = encode_packed(['address', 'uint256'], [
-                staking_contract_address, amount_units])
-            contract.functions.approve(staking_contract_address, amount_units).buildTransaction({
-                'from': sender_address,
-                'nonce': w3.eth.getTransactionCount(sender_address),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': approve_data.hex()
-            })
-            stake_data = encode_packed(['uint256'], [amount_units])
-            staking_contract = w3.eth.contract(
-                address=staking_contract_address, abi=staking_contract_abi)
-            tx_data = staking_contract.functions.stake(amount_units).buildTransaction({
-                'from': sender_address,
-                'nonce': w3.eth.getTransactionCount(sender_address),
-                'gas': 200000,
-                'gasPrice': w3.toWei('50', 'gwei'),
-                'data': stake_data.hex()
-            })
-        except Exception as e:
-            return f"Failed to build transaction data: {e}"
-
-        # Sign transaction
-        try:
-            signed_tx = w3.eth.account.sign_transaction(
-                tx_data, private_key=private_key)
-        except Exception as e:
-            return f"Failed to sign transaction: {e}"
-
-        # Send transaction
-        try:
-            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        except Exception as e:
-            return f"Failed to send transaction: {e}"
-
-        # Get the token symbol
-        try:
-            token_symbol = contract.functions.symbol().call()
-        except Exception as e:
-            return f"Failed to get token symbol: {e}"
-
-        return f"{amount} {token_symbol} tokens staked in contract {staking_contract_address}; transaction hash: {tx_hash}"
 
 ################################################################################
-# LUNARCRUSH
+# 2. BALANCES
 ################################################################################
 
-    def get_coin_of_the_day_wrapper(self) -> str:
-        data = get_coin_of_the_day(lunarcrush_api)
+    def get_my_eth_balance_wrapper(self):
+        data = Balances.get_my_eth_balance(my_address, endpoint)
+        return data
+
+    def get_eth_balance_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_eth_balance(wallet_address, endpoint)
+        return data
+
+    def get_eth_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_eth_token_balances(wallet_address)
+        return data
+
+    def get_bsc_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_bsc_token_balances(wallet_address)
+        return data
+
+    def get_polygon_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_polygon_token_balances(wallet_address)
+        return data
+
+    def get_arbitrum_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_arbitrum_token_balances(wallet_address)
+        return data
+
+    def get_avalanche_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_avalanche_token_balances(wallet_address)
+        return data
+
+    def get_fantom_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_fantom_token_balances(wallet_address)
+        return data
+
+    def get_optimism_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_optimism_token_balances(wallet_address)
+        return data
+
+    def get_syscoin_token_balances_wrapper(self, wallet_address: str) -> str:
+        data = Balances.get_syscoin_token_balances(wallet_address)
         return data
 
 ################################################################################
-# NFTS
+# 3. NFTS
 ################################################################################
     def get_nfts_wrapper(self, wallet_address: str) -> str:
-        nfts = get_nfts(wallet_address)
+        nfts = Nfts.get_nfts(wallet_address)
         return nfts
 
-    def get_my_nfts_wrapper(self, wallet_address: str) -> str:
-        nfts = get_my_nfts(wallet_address)
+    def get_my_nfts_wrapper(self):
+        nfts = Nfts.get_my_nfts(my_address)
         return nfts
 
-    def get_nft_of_the_day_wrapper(self) -> str:
-        data = get_nft_of_the_day(lunarcrush_api)
+    def get_nft_of_the_day_wrapper(self):
+        data = Nfts.get_nft_of_the_day(lunarcrush_api)
         return data
 
     def get_eth_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_eth_nft_metadata(contract_address, token_id)
+        data = Nfts.get_eth_nft_metadata(contract_address, token_id)
         return data
 
     def get_bsc_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_bsc_nft_metadata(contract_address, token_id)
+        data = Nfts.get_bsc_nft_metadata(contract_address, token_id)
         return data
 
     def get_polygon_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_polygon_nft_metadata(contract_address, token_id)
+        data = Nfts.get_polygon_nft_metadata(contract_address, token_id)
         return data
 
     def get_arbitrum_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_arbitrum_nft_metadata(contract_address, token_id)
+        data = Nfts.get_arbitrum_nft_metadata(contract_address, token_id)
         return data
 
     def get_avalanche_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_avalanche_nft_metadata(contract_address, token_id)
+        data = Nfts.get_avalanche_nft_metadata(contract_address, token_id)
         return data
 
     def get_fantom_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_fantom_nft_metadata(contract_address, token_id)
+        data = Nfts.get_fantom_nft_metadata(contract_address, token_id)
         return data
 
     def get_optimism_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_optimism_nft_metadata(contract_address, token_id)
+        data = Nfts.get_optimism_nft_metadata(contract_address, token_id)
         return data
 
     def get_syscoin_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
-        data = get_syscoin_nft_metadata(contract_address, token_id)
+        data = Nfts.get_syscoin_nft_metadata(contract_address, token_id)
+        return data
+################################################################################
+# 4. TRANSACTIONS
+################################################################################
+
+    def get_eth_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_eth_transaction_data(transaction_hash)
         return data
 
 ################################################################################
-# TELEGRAM
+# 5. EXCHANGE TRADING
+################################################################################
+
+    def available_crypto_exchanges_wrapper(self):
+        data = Exchanges.available_crypto_exchanges()
+        return data
+
+    def balance_on_coinbase_wrapper(self):
+        data = Exchanges.balance_on_coinbase(coinbase_api, coinbase_secret)
+        return data
+
+    def balance_on_kraken_wrapper(self):
+        data = Exchanges.balance_on_kraken(kraken_api, kraken_secret)
+        return data
+
+################################################################################
+# 6. TELEGRAM
 ################################################################################
 
     def find_new_eth_tokens_wrapper(self):
         # Run the coroutine and return the result
-        return self.client.loop.run_until_complete(self.find_new_eth_tokens())
+        return self.client.loop.run_until_complete(Telegram.find_new_eth_tokens(self.client))
 
-    def find_telegram_chat_messages_wrapper(self):
+    def find_telegram_chat_messages_wrapper(self, chat_name: str) -> str:
         # Run the coroutine and return the result
-        return self.client.loop.run_until_complete(self.find_telegram_chat_messages())
-
-    async def find_new_eth_tokens(self) -> List[str]:
-        entity = await self.client.get_entity('DEXTNewPairsBot')
-        messages = await self.client.get_messages(entity, 20)
-        messages_list = []  # Create an empty list to store messages
-
-        for message in messages:
-            messages_list.append(str(message.message))
-
-        # Convert the messages_list to a JSON string
-        messages_json = json.dumps(messages_list)
-        return messages_json
-
-    async def find_telegram_chat_messages(self, chat_name: str) -> List[str]:
-        entity = await self.client.get_entity(chat_name)
-        messages = await self.client.get_messages(entity, 20)
-        messages_list = []  # Create an empty list to store messages
-
-        for message in messages:
-            messages_list.append(str(message.message))
-
-        # Convert the messages_list to a JSON string
-        messages_json = json.dumps(messages_list)
-        return messages_json
+        return self.client.loop.run_until_complete(Telegram.find_telegram_chat_messages(self.client, chat_name))
 
 ################################################################################
-# EXCHANGE TRADING
+# 7. LUNARCRUSH
 ################################################################################
 
-    def available_crypto_exchanges(self) -> str:
-        try:
-            # retrieve environment variable containing comma-separated values
-            exchanges = os.environ.get("EXCHANGES")
-            if not exchanges:  # check if exchanges is empty or not set
-                return "Set EXCHANGES in the .env file"
-            # split the values using the comma delimiter and store them in a list
-            values_list = exchanges.split(",")
-            # get a list of all exchanges available in ccxt library
-            ccxt_exchanges = [exchange.lower() for exchange in ccxt.exchanges]
-            # create an empty list to store the exchanges that are not available in ccxt
-            not_available_exchanges = []
-            for item in values_list:  # iterate through the values in the list
-                # convert exchange name to lowercase after removing any leading or trailing whitespace
-                exchange_name = item.strip().lower()
-                if exchange_name not in ccxt_exchanges:  # check if the exchange is not available in ccxt
-                    # append the exchange to the not available exchanges list
-                    not_available_exchanges.append(exchange_name)
-            if not_available_exchanges:  # check if there are any exchanges that are not available in ccxt
-                # return the list of exchanges that are not available in ccxt
-                return f'Please review the exchanges.txt and add the correct exchanges to the .env: {not_available_exchanges}'
-            else:
-                return ccxt_exchanges  # return the list of all exchanges available in ccxt
-        except Exception as e:
-            return f"An error occurred while retrieving available exchanges: {str(e)}"
-
-    def balance_on_kraken(self) -> str:
-        try:
-            kraken = ccxt.kraken({
-                'apiKey': kraken_api,
-                'secret': kraken_secret,
-            })
-            balance = kraken.fetch_balance()
-
-            return balance
-        except Exception as e:
-            return f"An error occurred while retrieving balance from Kraken: {str(e)}"
-
-    def balance_on_coinbase(self) -> str:
-        try:
-            coinbase = ccxt.coinbase({
-                'apiKey': coinbase_api,
-                'secret': coinbase_secret,
-            })
-            balance = coinbase.fetch_balance()
-
-            return balance
-        except Exception as e:
-            return f"An error occurred while retrieving balance from Coinbase: {str(e)}"
-
-################################################################################
-# TRANSACTIONS
-################################################################################
-
-    def get_eth_transaction_data_wrapper(self, transaction_hash: str)-> str:
-        data = get_eth_transaction_data(transaction_hash)
+    def get_coin_of_the_day_wrapper(self):
+        data = LunarCrush.get_coin_of_the_day(lunarcrush_api)
         return data

@@ -18,7 +18,7 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 ## 💡 Key Features:
 
 - **Get ETH Balance**
-- **Get Wallet Token Holdings** (ETH, BSC, Fantom, Avalanche, Polygon, Arbitrum, Syscoin, Optimism)
+- **Get Wallet Token Holdings**
 - **Get Wallet NFT Holdings**
 - **Get Coin/NFT of The Day**
 - **Create Wallet**
@@ -39,6 +39,15 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **Crypto News**  (In-Progress)
 - **Purchase NFT**  (In-Progress)
 
+**Blockchains**
+- ETH
+- BSC
+- Fantom
+- Avalanche
+- Polygon
+- Arbitrum
+- Syscoin
+- Optimism
 ## 🔧 Installation
 
 Follow these steps to configure the Auto-GPT Crypto Plugin:
