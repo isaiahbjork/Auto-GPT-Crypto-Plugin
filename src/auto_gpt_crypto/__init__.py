@@ -51,15 +51,14 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         self._name = "Auto-GPT-Crypto"
         self._version = "0.1.0"
         self._description = "This is a plugin for Auto-GPT-Crypto."
-        self.telegram = Telegram(telegram_api_id, telegram_api_hash)
-        self.client = TelegramClient('Auto-GPT Crypto', telegram_api_id, telegram_api_hash)
-        
+        self.client = TelegramClient(
+            'Auto-GPT Crypto', telegram_api_id, telegram_api_hash)
+
         async def start_telegram():
             print('Starting Telegram Listener...')
             await self.client.start()
 
         self.client.loop.run_until_complete(start_telegram())
-       
 
     def post_prompt(self, prompt: PromptGenerator) -> PromptGenerator:
 
@@ -243,40 +242,8 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             },
             self.find_telegram_chat_messages_wrapper
         )
-        
+
         return prompt
-    
-    def find_new_eth_tokens_wrapper(self):
-        # Run the coroutine and return the result
-        return self.client.loop.run_until_complete(self.find_new_eth_tokens())
-    
-    def find_telegram_chat_messages_wrapper(self):
-        # Run the coroutine and return the result
-        return self.client.loop.run_until_complete(self.find_telegram_chat_messages())
-
-    async def find_new_eth_tokens(self) -> List[str]:
-        entity = await self.client.get_entity('DEXTNewPairsBot')
-        messages = await self.client.get_messages(entity, 20)
-        messages_list = []  # Create an empty list to store messages
-
-        for message in messages:
-            messages_list.append(str(message.message))
-        
-        # Convert the messages_list to a JSON string
-        messages_json = json.dumps(messages_list)
-        return messages_json
-    
-    async def find_telegram_chat_messages(self, chat_name: str) -> List[str]:
-        entity = await self.client.get_entity(chat_name)
-        messages = await self.client.get_messages(entity, 20)
-        messages_list = []  # Create an empty list to store messages
-
-        for message in messages:
-            messages_list.append(str(message.message))
-        
-        # Convert the messages_list to a JSON string
-        messages_json = json.dumps(messages_list)
-        return messages_json
 
     def can_handle_post_prompt(self) -> bool:
         """This method is called to check that the plugin can
@@ -1103,8 +1070,40 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             raise Exception(
                 f"Failed to get NFT of the day from LunarCrush; status code {response.status_code}")
 
-    
-        
+    # Telegram
+
+    def find_new_eth_tokens_wrapper(self):
+        # Run the coroutine and return the result
+        return self.client.loop.run_until_complete(self.find_new_eth_tokens())
+
+    def find_telegram_chat_messages_wrapper(self):
+        # Run the coroutine and return the result
+        return self.client.loop.run_until_complete(self.find_telegram_chat_messages())
+
+    async def find_new_eth_tokens(self) -> List[str]:
+        entity = await self.client.get_entity('DEXTNewPairsBot')
+        messages = await self.client.get_messages(entity, 20)
+        messages_list = []  # Create an empty list to store messages
+
+        for message in messages:
+            messages_list.append(str(message.message))
+
+        # Convert the messages_list to a JSON string
+        messages_json = json.dumps(messages_list)
+        return messages_json
+
+    async def find_telegram_chat_messages(self, chat_name: str) -> List[str]:
+        entity = await self.client.get_entity(chat_name)
+        messages = await self.client.get_messages(entity, 20)
+        messages_list = []  # Create an empty list to store messages
+
+        for message in messages:
+            messages_list.append(str(message.message))
+
+        # Convert the messages_list to a JSON string
+        messages_json = json.dumps(messages_list)
+        return messages_json
+
     # Exchange Trading
 
     def available_crypto_exchanges(self) -> str:
