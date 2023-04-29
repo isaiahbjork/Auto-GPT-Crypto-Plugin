@@ -26,11 +26,11 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **Get New Tokens From Dextools**
 - **Telegram Crypto Groups Listener**
 - **NFT Metadata**
+- **Transaction Data**  (In-Progress)
 - **Swap Tokens**  (In-Progress)
 - **Search Top Holders**  (In-Progress)
 - **Stake Tokens** (In-Progress)
 - **Send Tokens**  (In-Progress)
-- **Transaction Data**  (In-Progress)
 - **Get Token Holders**  (In-Progress)
 - **Get Coins By Market Cap**  (In-Progress)
 - **Trade on Exchanges**  (In-Progress)

@@ -29,6 +29,9 @@ get_fantom_nft_metadata
 get_nfts
 get_nft_of_the_day
 
+Transactions
+get_eth_transaction_data
+
 LunarCrush
 get_coin_of_the_day
 

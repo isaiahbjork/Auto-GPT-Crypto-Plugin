@@ -13,6 +13,8 @@ from auto_gpt_plugin_template import AutoGPTPluginTemplate
 from uniswap import Uniswap
 from telethon import TelegramClient
 from .nfts import get_my_nfts, get_nfts, get_nft_of_the_day, get_eth_nft_metadata, get_arbitrum_nft_metadata, get_avalanche_nft_metadata, get_bsc_nft_metadata, get_fantom_nft_metadata, get_optimism_nft_metadata, get_polygon_nft_metadata, get_syscoin_nft_metadata
+from .transactions import get_eth_transaction_data
+from .lunarcrush import get_coin_of_the_day
 
 PromptGenerator = TypeVar("PromptGenerator")
 
@@ -61,6 +63,162 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
         self.client.loop.run_until_complete(start_telegram())
 
+    def can_handle_on_response(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the on_response method.
+        Returns:
+            bool: True if the plugin can handle the on_response method."""
+        return False
+
+    def on_response(self, response: str, *args, **kwargs) -> str:
+        """This method is called when a response is received from the model."""
+        pass
+
+    def can_handle_on_planning(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the on_planning method.
+        Returns:
+            bool: True if the plugin can handle the on_planning method."""
+        return False
+
+    def on_planning(
+        self, prompt: PromptGenerator, messages: List[Message]
+    ) -> Optional[str]:
+        """This method is called before the planning chat completion is done.
+        Args:
+            prompt (PromptGenerator): The prompt generator.
+            messages (List[str]): The list of messages.
+        """
+        pass
+
+    def can_handle_post_planning(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the post_planning method.
+        Returns:
+            bool: True if the plugin can handle the post_planning method."""
+        return False
+
+    def post_planning(self, response: str) -> str:
+        """This method is called after the planning chat completion is done.
+        Args:
+            response (str): The response.
+        Returns:
+            str: The resulting response.
+        """
+        pass
+
+    def can_handle_pre_instruction(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the pre_instruction method.
+        Returns:
+            bool: True if the plugin can handle the pre_instruction method."""
+        return False
+
+    def pre_instruction(self, messages: List[Message]) -> List[Message]:
+        """This method is called before the instruction chat is done.
+        Args:
+            messages (List[Message]): The list of context messages.
+        Returns:
+            List[Message]: The resulting list of messages.
+        """
+        pass
+
+    def can_handle_on_instruction(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the on_instruction method.
+        Returns:
+            bool: True if the plugin can handle the on_instruction method."""
+        return False
+
+    def on_instruction(self, messages: List[Message]) -> Optional[str]:
+        """This method is called when the instruction chat is done.
+        Args:
+            messages (List[Message]): The list of context messages.
+        Returns:
+            Optional[str]: The resulting message.
+        """
+        pass
+
+    def can_handle_post_instruction(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the post_instruction method.
+        Returns:
+            bool: True if the plugin can handle the post_instruction method."""
+        return False
+
+    def post_instruction(self, response: str) -> str:
+        """This method is called after the instruction chat is done.
+        Args:
+            response (str): The response.
+        Returns:
+            str: The resulting response.
+        """
+        pass
+
+    def can_handle_pre_command(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the pre_command method.
+        Returns:
+            bool: True if the plugin can handle the pre_command method."""
+        return False
+
+    def pre_command(
+        self, command_name: str, arguments: Dict[str, Any]
+    ) -> Tuple[str, Dict[str, Any]]:
+        """This method is called before the command is executed.
+        Args:
+            command_name (str): The command name.
+            arguments (Dict[str, Any]): The arguments.
+        Returns:
+            Tuple[str, Dict[str, Any]]: The command name and the arguments.
+        """
+        pass
+
+    def can_handle_post_command(self) -> bool:
+        """This method is called to check that the plugin can
+        handle the post_command method.
+        Returns:
+            bool: True if the plugin can handle the post_command method."""
+        return False
+
+    def post_command(self, command_name: str, response: str) -> str:
+        """This method is called after the command is executed.
+        Args:
+            command_name (str): The command name.
+            response (str): The response.
+        Returns:
+            str: The resulting response.
+        """
+        pass
+
+    def can_handle_chat_completion(
+        self, messages: Dict[Any, Any], model: str, temperature: float, max_tokens: int
+    ) -> bool:
+        """This method is called to check that the plugin can
+          handle the chat_completion method.
+        Args:
+            messages (List[Message]): The messages.
+            model (str): The model name.
+            temperature (float): The temperature.
+            max_tokens (int): The max tokens.
+          Returns:
+              bool: True if the plugin can handle the chat_completion method."""
+        return False
+
+    def handle_chat_completion(
+        self, messages: List[Message], model: str, temperature: float, max_tokens: int
+    ) -> str:
+        """This method is called when the chat completion is done.
+        Args:
+            messages (List[Message]): The messages.
+            model (str): The model name.
+            temperature (float): The temperature.
+            max_tokens (int): The max tokens.
+        Returns:
+            str: The resulting response.
+        """
+        pass
+
     def post_prompt(self, prompt: PromptGenerator) -> PromptGenerator:
 
         prompt.add_command(
@@ -94,7 +252,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             "Get Coin of The Day",
             "get_coin_of_the_day",
             {},
-            self.get_coin_of_the_day
+            self.get_coin_of_the_day_wrapper
         ),
         prompt.add_command(
             "Get NFT of The Day",
@@ -314,7 +472,13 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 "chat_name": "<chat_name>"
             },
             self.find_telegram_chat_messages_wrapper
-        )
+        ),
+        prompt.add_command(
+            "Get ETH transaction data",
+            "get_eth_transaction_data",
+            {},
+            self.get_eth_transaction_data_wrapper
+        ),
 
         return prompt
 
@@ -324,162 +488,6 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         Returns:
             bool: True if the plugin can handle the post_prompt method."""
         return True
-
-    def can_handle_on_response(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the on_response method.
-        Returns:
-            bool: True if the plugin can handle the on_response method."""
-        return False
-
-    def on_response(self, response: str, *args, **kwargs) -> str:
-        """This method is called when a response is received from the model."""
-        pass
-
-    def can_handle_on_planning(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the on_planning method.
-        Returns:
-            bool: True if the plugin can handle the on_planning method."""
-        return False
-
-    def on_planning(
-        self, prompt: PromptGenerator, messages: List[Message]
-    ) -> Optional[str]:
-        """This method is called before the planning chat completion is done.
-        Args:
-            prompt (PromptGenerator): The prompt generator.
-            messages (List[str]): The list of messages.
-        """
-        pass
-
-    def can_handle_post_planning(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the post_planning method.
-        Returns:
-            bool: True if the plugin can handle the post_planning method."""
-        return False
-
-    def post_planning(self, response: str) -> str:
-        """This method is called after the planning chat completion is done.
-        Args:
-            response (str): The response.
-        Returns:
-            str: The resulting response.
-        """
-        pass
-
-    def can_handle_pre_instruction(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the pre_instruction method.
-        Returns:
-            bool: True if the plugin can handle the pre_instruction method."""
-        return False
-
-    def pre_instruction(self, messages: List[Message]) -> List[Message]:
-        """This method is called before the instruction chat is done.
-        Args:
-            messages (List[Message]): The list of context messages.
-        Returns:
-            List[Message]: The resulting list of messages.
-        """
-        pass
-
-    def can_handle_on_instruction(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the on_instruction method.
-        Returns:
-            bool: True if the plugin can handle the on_instruction method."""
-        return False
-
-    def on_instruction(self, messages: List[Message]) -> Optional[str]:
-        """This method is called when the instruction chat is done.
-        Args:
-            messages (List[Message]): The list of context messages.
-        Returns:
-            Optional[str]: The resulting message.
-        """
-        pass
-
-    def can_handle_post_instruction(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the post_instruction method.
-        Returns:
-            bool: True if the plugin can handle the post_instruction method."""
-        return False
-
-    def post_instruction(self, response: str) -> str:
-        """This method is called after the instruction chat is done.
-        Args:
-            response (str): The response.
-        Returns:
-            str: The resulting response.
-        """
-        pass
-
-    def can_handle_pre_command(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the pre_command method.
-        Returns:
-            bool: True if the plugin can handle the pre_command method."""
-        return False
-
-    def pre_command(
-        self, command_name: str, arguments: Dict[str, Any]
-    ) -> Tuple[str, Dict[str, Any]]:
-        """This method is called before the command is executed.
-        Args:
-            command_name (str): The command name.
-            arguments (Dict[str, Any]): The arguments.
-        Returns:
-            Tuple[str, Dict[str, Any]]: The command name and the arguments.
-        """
-        pass
-
-    def can_handle_post_command(self) -> bool:
-        """This method is called to check that the plugin can
-        handle the post_command method.
-        Returns:
-            bool: True if the plugin can handle the post_command method."""
-        return False
-
-    def post_command(self, command_name: str, response: str) -> str:
-        """This method is called after the command is executed.
-        Args:
-            command_name (str): The command name.
-            response (str): The response.
-        Returns:
-            str: The resulting response.
-        """
-        pass
-
-    def can_handle_chat_completion(
-        self, messages: Dict[Any, Any], model: str, temperature: float, max_tokens: int
-    ) -> bool:
-        """This method is called to check that the plugin can
-          handle the chat_completion method.
-        Args:
-            messages (List[Message]): The messages.
-            model (str): The model name.
-            temperature (float): The temperature.
-            max_tokens (int): The max tokens.
-          Returns:
-              bool: True if the plugin can handle the chat_completion method."""
-        return False
-
-    def handle_chat_completion(
-        self, messages: List[Message], model: str, temperature: float, max_tokens: int
-    ) -> str:
-        """This method is called when the chat completion is done.
-        Args:
-            messages (List[Message]): The messages.
-            model (str): The model name.
-            temperature (float): The temperature.
-            max_tokens (int): The max tokens.
-        Returns:
-            str: The resulting response.
-        """
-        pass
 
 ################################################################################
 # CRYPTO WALLET INTERACTIONS
@@ -1041,20 +1049,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 # LUNARCRUSH
 ################################################################################
 
-    def get_coin_of_the_day(self) -> float:
-
-        url = "https://lunarcrush.com/api3/coinoftheday"
-        headers = {
-            'Authorization': f'Bearer {lunarcrush_api}'
-        }
-
-        response = requests.request("GET", url, headers=headers)
-
-        if response.status_code == 200:
-            return response.text.encode('utf8')
-        else:
-            raise Exception(
-                f"Failed to get coin of the day from LunarCrush; status code {response.status_code}")
+    def get_coin_of_the_day_wrapper(self) -> str:
+        data = get_coin_of_the_day(lunarcrush_api)
+        return data
 
 ################################################################################
 # NFTS
@@ -1192,3 +1189,11 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             return balance
         except Exception as e:
             return f"An error occurred while retrieving balance from Coinbase: {str(e)}"
+
+################################################################################
+# TRANSACTIONS
+################################################################################
+
+    def get_eth_transaction_data_wrapper(self, transaction_hash: str)-> str:
+        data = get_eth_transaction_data(transaction_hash)
+        return data
