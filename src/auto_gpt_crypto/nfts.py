@@ -115,4 +115,200 @@ def get_eth_nft_metadata(contract_address, token_id):
             return data
 
         except Exception as e:
-            return f"Failed to get NFT's: {e}"
+            return f"Failed to get ETH NFT Metadata: {e}"
+
+def get_bsc_nft_metadata(contract_address, token_id):
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getNFTMetadata="
+
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getNFTMetadata",
+                "params": {
+                    "blockchain": "bsc",
+                    "contractAddress": contract_address,
+                    "tokenId": token_id
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            data = response_data
+
+            return data
+
+        except Exception as e:
+            return f"Failed to get BSC NFT Metadata: {e}"
+
+def get_polygon_nft_metadata(contract_address, token_id):
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getNFTMetadata="
+
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getNFTMetadata",
+                "params": {
+                    "blockchain": "polygon",
+                    "contractAddress": contract_address,
+                    "tokenId": token_id
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            data = response_data
+
+            return data
+
+        except Exception as e:
+            return f"Failed to get Polygon NFT Metadata: {e}"
+        
+def get_arbitrum_nft_metadata(contract_address, token_id):
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getNFTMetadata="
+
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getNFTMetadata",
+                "params": {
+                    "blockchain": "arbitrum",
+                    "contractAddress": contract_address,
+                    "tokenId": token_id
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            data = response_data
+
+            return data
+
+        except Exception as e:
+            return f"Failed to get Arbitrum NFT Metadata: {e}"
+
+def get_avalanche_nft_metadata(contract_address, token_id):
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getNFTMetadata="
+
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getNFTMetadata",
+                "params": {
+                    "blockchain": "avalanche",
+                    "contractAddress": contract_address,
+                    "tokenId": token_id
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            data = response_data
+
+            return data
+
+        except Exception as e:
+            return f"Failed to get Avalanche NFT Metadata: {e}"
+        
+def get_fantom_nft_metadata(contract_address, token_id):
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getNFTMetadata="
+
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getNFTMetadata",
+                "params": {
+                    "blockchain": "avalanche",
+                    "contractAddress": contract_address,
+                    "tokenId": token_id
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            data = response_data
+
+            return data
+
+        except Exception as e:
+            return f"Failed to get Fantom NFT Metadata: {e}"
+
+def get_optimism_nft_metadata(contract_address, token_id):
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getNFTMetadata="
+
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getNFTMetadata",
+                "params": {
+                    "blockchain": "avalanche",
+                    "contractAddress": contract_address,
+                    "tokenId": token_id
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            data = response_data
+
+            return data
+
+        except Exception as e:
+            return f"Failed to get Optimism NFT Metadata: {e}"
+
+def get_syscoin_nft_metadata(contract_address, token_id):
+        try:
+            url = "https://rpc.ankr.com/multichain/?ankr_getNFTMetadata="
+
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "ankr_getNFTMetadata",
+                "params": {
+                    "blockchain": "syscoin",
+                    "contractAddress": contract_address,
+                    "tokenId": token_id
+                },
+                "id": 1
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+            data = response_data
+
+            return data
+
+        except Exception as e:
+            return f"Failed to get Syscoin NFT Metadata: {e}"

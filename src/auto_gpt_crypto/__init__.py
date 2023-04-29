@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
 from uniswap import Uniswap
 from telethon import TelegramClient
-from .nfts import get_my_nfts, get_nfts, get_nft_of_the_day, get_eth_nft_metadata
+from .nfts import get_my_nfts, get_nfts, get_nft_of_the_day, get_eth_nft_metadata, get_arbitrum_nft_metadata, get_avalanche_nft_metadata, get_bsc_nft_metadata, get_fantom_nft_metadata, get_optimism_nft_metadata, get_polygon_nft_metadata, get_syscoin_nft_metadata
 
 PromptGenerator = TypeVar("PromptGenerator")
 
@@ -146,6 +146,69 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 "token_id": "<token_id>"
             },
             self.get_eth_nft_metadata_wrapper
+        ),
+        prompt.add_command(
+            "Get BSC NFT Metadata",
+            "get_bsc_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_bsc_nft_metadata_wrapper
+        ),
+        prompt.add_command(
+            "Get Polygon NFT Metadata",
+            "get_polygon_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_polygon_nft_metadata_wrapper
+        ),
+        prompt.add_command(
+            "Get Arbitrum NFT Metadata",
+            "get_arbitrum_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_arbitrum_nft_metadata_wrapper
+        ),
+        prompt.add_command(
+            "Get Avalanche NFT Metadata",
+            "get_avalanche_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_avalanche_nft_metadata_wrapper
+        ),
+        prompt.add_command(
+            "Get Fantom NFT Metadata",
+            "get_fantom_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_fantom_nft_metadata_wrapper
+        ),
+        prompt.add_command(
+            "Get Optimism NFT Metadata",
+            "get_optimism_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_optimism_nft_metadata_wrapper
+        ),
+        prompt.add_command(
+            "Get Syscoin NFT Metadata",
+            "get_syscoin_nft_metadata",
+            {
+                "contract_address": "<contract_address>",
+                "token_id": "<token_id>"
+            },
+            self.get_syscoin_nft_metadata_wrapper
         ),
         prompt.add_command(
             "Get My ETH Balance",
@@ -418,7 +481,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         """
         pass
 
-    # Crypto Wallet Interactions
+################################################################################
+# CRYPTO WALLET INTERACTIONS
+################################################################################
 
     def create_wallet(self):
         # Generate a new Ethereum account with a mnemonic phrase
@@ -972,7 +1037,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 
         return f"{amount} {token_symbol} tokens staked in contract {staking_contract_address}; transaction hash: {tx_hash}"
 
-    # LunarCrush
+################################################################################
+# LUNARCRUSH
+################################################################################
 
     def get_coin_of_the_day(self) -> float:
 
@@ -989,6 +1056,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             raise Exception(
                 f"Failed to get coin of the day from LunarCrush; status code {response.status_code}")
 
+################################################################################
+# NFTS
+################################################################################
     def get_nfts_wrapper(self, wallet_address: str) -> str:
         nfts = get_nfts(wallet_address)
         return nfts
@@ -1001,9 +1071,41 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         data = get_nft_of_the_day(lunarcrush_api)
         return data
 
-    def get_eth_nft_metadata_wrapper(self, contract_address: str, token_id:str) -> str:
+    def get_eth_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
         data = get_eth_nft_metadata(contract_address, token_id)
         return data
+
+    def get_bsc_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
+        data = get_bsc_nft_metadata(contract_address, token_id)
+        return data
+
+    def get_polygon_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
+        data = get_polygon_nft_metadata(contract_address, token_id)
+        return data
+
+    def get_arbitrum_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
+        data = get_arbitrum_nft_metadata(contract_address, token_id)
+        return data
+
+    def get_avalanche_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
+        data = get_avalanche_nft_metadata(contract_address, token_id)
+        return data
+
+    def get_fantom_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
+        data = get_fantom_nft_metadata(contract_address, token_id)
+        return data
+
+    def get_optimism_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
+        data = get_optimism_nft_metadata(contract_address, token_id)
+        return data
+
+    def get_syscoin_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
+        data = get_syscoin_nft_metadata(contract_address, token_id)
+        return data
+
+################################################################################
+# TELEGRAM
+################################################################################
 
     def find_new_eth_tokens_wrapper(self):
         # Run the coroutine and return the result
@@ -1037,7 +1139,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         messages_json = json.dumps(messages_list)
         return messages_json
 
-    # Exchange Trading
+################################################################################
+# EXCHANGE TRADING
+################################################################################
 
     def available_crypto_exchanges(self) -> str:
         try:

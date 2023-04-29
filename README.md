@@ -25,6 +25,7 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **Send ETH**
 - **Get New Tokens From Dextools**
 - **Telegram Crypto Groups Listener**
+- **NFT Metadata**
 - **Swap Tokens**  (In-Progress)
 - **Search Top Holders**  (In-Progress)
 - **Stake Tokens** (In-Progress)
@@ -37,7 +38,7 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **Indicators**  (In-Progress)
 - **Crypto News**  (In-Progress)
 - **Purchase NFT**  (In-Progress)
-- **NFT Metadata**  (In-Progress)
+
 ## 🔧 Installation
 
 Follow these steps to configure the Auto-GPT Crypto Plugin:

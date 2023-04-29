@@ -1,6 +1,6 @@
+Crypto Wallet
 get_my_eth_balance
 get_my_nfts
-
 send_eth
 stake_tokens
 send_tokens
@@ -14,14 +14,29 @@ get_avalanche_token_balances
 get_arbitrum_token_balances
 get_syscoin_token_balances
 get_optimism_token_balances
+get_fantom_token_balances
+
+NFT
 get_nfts
 get_eth_nft_metadata
-
-get_coin_of_the_day
+get_polygon_nft_metadata
+get_bsc_nft_metadata
+get_avalanche_nft_metadata
+get_arbitrum_nft_metadata
+get_syscoin_nft_metadata
+get_optimism_nft_metadata
+get_fantom_nft_metadata
+get_nfts
 get_nft_of_the_day
+
+LunarCrush
+get_coin_of_the_day
+
+Telegram Listener
 find_new_eth_tokens
 find_telegram_chat_messages
 
+Exchange Trading
 available_crypto_exchanges
 balance_on_kraken
 balance_on_coinbase
