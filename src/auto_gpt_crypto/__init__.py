@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 from auto_gpt_plugin_template import AutoGPTPluginTemplate
 from uniswap import Uniswap
 from telethon import TelegramClient
-from .telegram import Telegram
 
 PromptGenerator = TypeVar("PromptGenerator")
 
