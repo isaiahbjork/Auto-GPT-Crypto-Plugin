@@ -51,6 +51,7 @@ balance_on_coinbase
 LunarCrush
 get_coin_of_the_day
 get_lunarcrush_galaxy_score_cryptos - Premium
+get_lunarcrush_alt_rank_cryptos - Premium
 get_recent_crypto_social_feeds - Premium
 
 FCS
