@@ -38,7 +38,7 @@ class Fcs():
             return f'Error fetching data from FCS API: {e}'
         
     def get_crypto_technical_indicators(fcs_api, symbol, timeframe):
-        url = f'https://fcsapi.com/api-v3/crypto/incdicators'
+        url = f'https://fcsapi.com/api-v3/crypto/indicators'
         params = {
             'symbol': symbol,
             'period': timeframe,

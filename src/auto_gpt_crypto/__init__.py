@@ -560,15 +560,15 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             },
             self.get_crypto_pivot_points_wrapper
         ),
-        # prompt.add_command(
-        #     "Get Moving Average Signals",
-        #     "get_crypto_moving_averages",
-        #     {
-        #         "symbol": "<symbol>",
-        #         "timeframe": "<timeframe>"
-        #     },
-        #     self.get_crypto_moving_averages_wrapper
-        # ),
+        prompt.add_command(
+            "Get Moving Average Signals",
+            "get_crypto_moving_averages",
+            {
+                "symbol": "<symbol>",
+                "timeframe": "<timeframe>"
+            },
+            self.get_crypto_moving_averages_wrapper
+        ),
         # prompt.add_command(
         #     "Get Technical Indicators Signals",
         #     "get_crypto_technical_indicators",
@@ -776,9 +776,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         data = Fcs.get_crypto_pivot_points(fcs_api, symbol, timeframe)
         return data
     
-    # def get_crypto_moving_averages_wrapper(self, symbol: str, timeframe: str) -> str:
-    #     data = Fcs.get_crypto_moving_averages(fcs_api, symbol, timeframe)
-    #     return data
+    def get_crypto_moving_averages_wrapper(self, symbol: str, timeframe: str) -> str:
+        data = Fcs.get_crypto_moving_averages(fcs_api, symbol, timeframe)
+        return data
     
     # def get_crypto_technical_indicators_wrapper(self, symbol: str, timeframe: str) -> str:
     #     data = Fcs.get_crypto_technical_indicators(fcs_api, symbol, timeframe)
