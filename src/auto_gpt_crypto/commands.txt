@@ -52,6 +52,6 @@ LunarCrush
 get_coin_of_the_day
 
 FCS
-get_crypto_news
+get_crypto_pivot_points
 
 
