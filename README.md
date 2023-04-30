@@ -27,16 +27,17 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **Telegram Crypto Groups Listener**
 - **NFT Metadata**
 - **Transaction Data**
+- **Signals (Pivot Points, Moving Averages, Technical Indicators)**  (In-Progress)
+- **Crypto News**  (In-Progress)
+- **Indicators**  (In-Progress)
 - **Swap Tokens**  (In-Progress)
 - **Search Top Holders**  (In-Progress)
 - **Stake Tokens** (In-Progress)
 - **Send Tokens**  (In-Progress)
-- **Get Token Holders**  (In-Progress)
 - **Get Coins By Market Cap**  (In-Progress)
 - **Trade on Exchanges**  (In-Progress)
 - **Fetch Candlesticks**  (In-Progress)
-- **Indicators**  (In-Progress)
-- **Crypto News**  (In-Progress)
+- **Currency Convertor**  (In-Progress)
 - **Purchase NFT**  (In-Progress)
 
 **Blockchains**
@@ -114,6 +115,7 @@ ETH_NETWORK=
 LUNAR_CRUSH_API_KEY=
 TELEGRAM_API_ID=
 TELEGRAM_API_HASH=
+FCS_API_KEY=
 ### Exchanges
 EXCHANGES=
 KRAKEN_API_KEY=
@@ -125,9 +127,11 @@ COINBASE_SECRET=
 - Create a [Infura](https://infura.io) account.
 - Create a [Etherscan](https://etherscan.io) account.
 - Create a [LunarCrush](https://lunarcrush.com) account.
+- Create a [FCS](https://fcsapi.com) account.
 - Set `INFURA_API_KEY` to your Infura account ID.
 - Set `ETHERSCAN_API_KEY` to your Etherscan API Key.
 - Set `LUNAR_CRUSH_API_KEY` to your LunarCrush API Key.
+- Set `FCS_API_KEY` to your FCS API Key.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
 - Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum mnemonic.
 - Set `ETH_NETWORK` to your Ethereum Network (mainnet or sepolia).

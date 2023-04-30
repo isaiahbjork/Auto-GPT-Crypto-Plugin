@@ -6,6 +6,7 @@
 # 5. EXCHANGE TRADING
 # 6. TELEGRAM
 # 7. LUNARCRUSH
+# 8. FCS
 from web3 import Web3, HTTPProvider
 import os
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
@@ -19,6 +20,7 @@ from .exchanges import Exchanges
 from .balances import Balances
 from .wallet import Wallet
 from .telegram import Telegram
+from .fcs import Fcs
 
 PromptGenerator = TypeVar("PromptGenerator")
 
@@ -34,6 +36,7 @@ kraken_secret = os.getenv('KRAKEN_SECRET')
 coinbase_api = os.getenv('COINBASE_API_KEY')
 coinbase_secret = os.getenv('COINBASE_SECRET')
 network = os.getenv('ETH_NETWORK')
+fcs_api = os.getenv('FCS_API_KEY')
 endpoint = f"https://{network}.infura.io/v3/{infura_api}"
 
 # Connect to Ethereum node using Infura
@@ -511,23 +514,19 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             "Available Crypto Exchanges",
             "available_crypto_exchanges",
             {},
-            self.available_crypto_exchanges
+            self.available_crypto_exchanges_wrapper
         ),
         prompt.add_command(
             "Balance on Kraken",
             "balance_on_kraken",
-            {
-                "symbol": "<symbol>"
-            },
-            self.balance_on_kraken
+            {},
+            self.balance_on_kraken_wrapper
         ),
         prompt.add_command(
             "Balance on Coinbase",
             "balance_on_coinbase",
-            {
-                "symbol": "<symbol>"
-            },
-            self.balance_on_coinbase
+            {},
+            self.balance_on_coinbase_wrapper
         ),
         # 6. TELEGRAM
         prompt.add_command(
@@ -551,7 +550,34 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             {},
             self.get_coin_of_the_day_wrapper
         ),
-
+        # 8. FCS
+        prompt.add_command(
+            "Get Pivot Points Signals",
+            "get_crypto_pivot_points",
+            {
+                "symbol": "<symbol>",
+                "timeframe": "<timeframe>"
+            },
+            self.get_crypto_pivot_points_wrapper
+        ),
+        # prompt.add_command(
+        #     "Get Moving Average Signals",
+        #     "get_crypto_moving_averages",
+        #     {
+        #         "symbol": "<symbol>",
+        #         "timeframe": "<timeframe>"
+        #     },
+        #     self.get_crypto_moving_averages_wrapper
+        # ),
+        # prompt.add_command(
+        #     "Get Technical Indicators Signals",
+        #     "get_crypto_technical_indicators",
+        #     {
+        #         "symbol": "<symbol>",
+        #         "timeframe": "<timeframe>"
+        #     },
+        #     self.get_crypto_technical_indicators_wrapper
+        # ),
         return prompt
 
     def can_handle_post_prompt(self) -> bool:
@@ -576,6 +602,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 ################################################################################
 # 2. BALANCES
 ################################################################################
+
 
     def get_my_eth_balance_wrapper(self):
         data = Balances.get_my_eth_balance(my_address, endpoint)
@@ -620,7 +647,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 ################################################################################
 # 3. NFTS
 ################################################################################
-    
+
     def get_nfts_wrapper(self, wallet_address: str) -> str:
         nfts = Nfts.get_nfts(wallet_address)
         return nfts
@@ -664,7 +691,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     def get_syscoin_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
         data = Nfts.get_syscoin_nft_metadata(contract_address, token_id)
         return data
-    
+
 ################################################################################
 # 4. TRANSACTIONS
 ################################################################################
@@ -676,34 +703,35 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     def get_polygon_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_polygon_transaction_data(transaction_hash)
         return data
-     
+
     def get_bsc_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_bsc_transaction_data(transaction_hash)
         return data
-    
+
     def get_fantom_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_fantom_transaction_data(transaction_hash)
         return data
-    
+
     def get_fantom_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_fantom_transaction_data(transaction_hash)
         return data
-    
+
     def get_arbitrum_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_arbitrum_transaction_data(transaction_hash)
         return data
-    
+
     def get_avalanche_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_avalanche_transaction_data(transaction_hash)
         return data
-    
+
     def get_optimism_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_optimism_transaction_data(transaction_hash)
         return data
-    
+
     def get_syscoin_transaction_data_wrapper(self, transaction_hash: str) -> str:
         data = Transactions.get_syscoin_transaction_data(transaction_hash)
         return data
+
 ################################################################################
 # 5. EXCHANGE TRADING
 ################################################################################
@@ -739,3 +767,20 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     def get_coin_of_the_day_wrapper(self):
         data = LunarCrush.get_coin_of_the_day(lunarcrush_api)
         return data
+
+################################################################################
+# 8. FCS
+################################################################################
+
+    def get_crypto_pivot_points_wrapper(self, symbol: str, timeframe: str) -> str:
+        data = Fcs.get_crypto_pivot_points(fcs_api, symbol, timeframe)
+        return data
+    
+    # def get_crypto_moving_averages_wrapper(self, symbol: str, timeframe: str) -> str:
+    #     data = Fcs.get_crypto_moving_averages(fcs_api, symbol, timeframe)
+    #     return data
+    
+    # def get_crypto_technical_indicators_wrapper(self, symbol: str, timeframe: str) -> str:
+    #     data = Fcs.get_crypto_technical_indicators(fcs_api, symbol, timeframe)
+    #     return data
+
