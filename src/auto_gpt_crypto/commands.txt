@@ -31,9 +31,13 @@ get_nft_of_the_day
 
 Transactions
 get_eth_transaction_data
-
-LunarCrush
-get_coin_of_the_day
+get_polygon_transaction_data
+get_bsc_transaction_data
+get_avalanche_transaction_data
+get_arbitrum_transaction_data
+get_syscoin_transaction_data
+get_optimism_transaction_data
+get_fantom_transaction_data
 
 Telegram Listener
 find_new_eth_tokens
@@ -43,5 +47,11 @@ Exchange Trading
 available_crypto_exchanges
 balance_on_kraken
 balance_on_coinbase
+
+LunarCrush
+get_coin_of_the_day
+
+FCS
+get_crypto_news
 
 
