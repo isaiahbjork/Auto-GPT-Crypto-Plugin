@@ -445,10 +445,67 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         prompt.add_command(
             "Get ETH transaction data",
             "get_eth_transaction_data",
-            {},
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
             self.get_eth_transaction_data_wrapper
         ),
-
+        prompt.add_command(
+            "Get Polygon transaction data",
+            "get_polygon_transaction_data",
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
+            self.get_polygon_transaction_data_wrapper
+        ),
+        prompt.add_command(
+            "Get BSC transaction data",
+            "get_bsc_transaction_data",
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
+            self.get_bsc_transaction_data_wrapper
+        ),
+        prompt.add_command(
+            "Get Fantom transaction data",
+            "get_fantom_transaction_data",
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
+            self.get_fantom_transaction_data_wrapper
+        ),
+        prompt.add_command(
+            "Get Arbitrum transaction data",
+            "get_arbitrum_transaction_data",
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
+            self.get_arbitrum_transaction_data_wrapper
+        ),
+        prompt.add_command(
+            "Get Avalanche transaction data",
+            "get_avalanche_transaction_data",
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
+            self.get_avalanche_transaction_data_wrapper
+        ),
+        prompt.add_command(
+            "Get Optimism transaction data",
+            "get_optimism_transaction_data",
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
+            self.get_optimism_transaction_data_wrapper
+        ),
+        prompt.add_command(
+            "Get Syscoin transaction data",
+            "get_syscoin_transaction_data",
+            {
+                "transaction_hash": "<transaction_hash>"
+            },
+            self.get_syscoin_transaction_data_wrapper
+        ),
         # 5. EXCHANGE TRADING
         prompt.add_command(
             "Available Crypto Exchanges",
@@ -563,6 +620,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 ################################################################################
 # 3. NFTS
 ################################################################################
+    
     def get_nfts_wrapper(self, wallet_address: str) -> str:
         nfts = Nfts.get_nfts(wallet_address)
         return nfts
@@ -606,6 +664,7 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     def get_syscoin_nft_metadata_wrapper(self, contract_address: str, token_id: str) -> str:
         data = Nfts.get_syscoin_nft_metadata(contract_address, token_id)
         return data
+    
 ################################################################################
 # 4. TRANSACTIONS
 ################################################################################
@@ -614,6 +673,37 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         data = Transactions.get_eth_transaction_data(transaction_hash)
         return data
 
+    def get_polygon_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_polygon_transaction_data(transaction_hash)
+        return data
+     
+    def get_bsc_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_bsc_transaction_data(transaction_hash)
+        return data
+    
+    def get_fantom_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_fantom_transaction_data(transaction_hash)
+        return data
+    
+    def get_fantom_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_fantom_transaction_data(transaction_hash)
+        return data
+    
+    def get_arbitrum_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_arbitrum_transaction_data(transaction_hash)
+        return data
+    
+    def get_avalanche_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_avalanche_transaction_data(transaction_hash)
+        return data
+    
+    def get_optimism_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_optimism_transaction_data(transaction_hash)
+        return data
+    
+    def get_syscoin_transaction_data_wrapper(self, transaction_hash: str) -> str:
+        data = Transactions.get_syscoin_transaction_data(transaction_hash)
+        return data
 ################################################################################
 # 5. EXCHANGE TRADING
 ################################################################################
