@@ -30,6 +30,7 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **Signals (Pivot Points, Moving Averages, Technical Indicators)**
 - **CoinMarketCap Airdrops**
 - **Currency Convertor**
+- **Recent Crypto Social Feed**
 - **Swap Tokens**  (In-Progress)
 - **Crypto News**  (In-Progress)
 - **Indicators**  (In-Progress)
