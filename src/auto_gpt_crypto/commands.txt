@@ -53,5 +53,9 @@ get_coin_of_the_day
 
 FCS
 get_crypto_pivot_points
+get_crypto_technical_indicators - Premium
+get_crypto_moving_averages - Premium
 
-
+CoinMarketCap
+convert_crypto
+get_upcoming_airdrops - Premium

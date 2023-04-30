@@ -7,6 +7,8 @@
 # 6. TELEGRAM
 # 7. LUNARCRUSH
 # 8. FCS
+# 9. COINMARKETCAP
+
 from web3 import Web3, HTTPProvider
 import os
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
@@ -21,6 +23,7 @@ from .balances import Balances
 from .wallet import Wallet
 from .telegram import Telegram
 from .fcs import Fcs
+from .coinmarketcap import CoinMarketCap
 
 PromptGenerator = TypeVar("PromptGenerator")
 
@@ -37,6 +40,7 @@ coinbase_api = os.getenv('COINBASE_API_KEY')
 coinbase_secret = os.getenv('COINBASE_SECRET')
 network = os.getenv('ETH_NETWORK')
 fcs_api = os.getenv('FCS_API_KEY')
+cmc_api = os.getenv('CMC_API_KEY')
 endpoint = f"https://{network}.infura.io/v3/{infura_api}"
 
 # Connect to Ethereum node using Infura
@@ -569,15 +573,32 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             },
             self.get_crypto_moving_averages_wrapper
         ),
-        # prompt.add_command(
-        #     "Get Technical Indicators Signals",
-        #     "get_crypto_technical_indicators",
-        #     {
-        #         "symbol": "<symbol>",
-        #         "timeframe": "<timeframe>"
-        #     },
-        #     self.get_crypto_technical_indicators_wrapper
-        # ),
+        prompt.add_command(
+            "Get Technical Indicators Signals",
+            "get_crypto_technical_indicators",
+            {
+                "symbol": "<symbol>",
+                "timeframe": "<timeframe>"
+            },
+            self.get_crypto_technical_indicators_wrapper
+        ),
+        # 9. COINMARKETCAP
+        prompt.add_command(
+            "Get Upcoming Airdrops",
+            "get_upcoming_airdrops",
+            {},
+            self.get_upcoming_airdrops_wrapper
+        ),
+        prompt.add_command(
+            "Convert Crypto",
+            "convert_crypto",
+            {
+                "amount": "<amount>",
+                "symbol": "<symbol>",
+                "conversion_symbol": "<conversion_symbol>"
+            },
+            self.convert_crypto_wrapper
+        ),
         return prompt
 
     def can_handle_post_prompt(self) -> bool:
@@ -780,7 +801,18 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         data = Fcs.get_crypto_moving_averages(fcs_api, symbol, timeframe)
         return data
     
-    # def get_crypto_technical_indicators_wrapper(self, symbol: str, timeframe: str) -> str:
-    #     data = Fcs.get_crypto_technical_indicators(fcs_api, symbol, timeframe)
-    #     return data
+    def get_crypto_technical_indicators_wrapper(self, symbol: str, timeframe: str) -> str:
+        data = Fcs.get_crypto_technical_indicators(fcs_api, symbol, timeframe)
+        return data
 
+################################################################################
+# 9. COINMARKETCAP
+################################################################################
+    
+    def get_upcoming_airdrops_wrapper(self) -> str:
+        data = CoinMarketCap.get_upcoming_airdrops(cmc_api)
+        return data
+    
+    def convert_crypto_wrapper(self, amount: float, symbol: str, conversion_symbol: str) -> str:
+        data = CoinMarketCap.convert_crypto(cmc_api, amount, symbol, conversion_symbol)
+        return data
