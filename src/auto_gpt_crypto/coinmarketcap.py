@@ -1,7 +1,7 @@
 import requests
 
 class CoinMarketCap():
-    def get_upcoming_airdrops(cmc_api):
+    def get_coinmarketcap_airdrops(cmc_api):
         url = f'https://pro-api.coinmarketcap.com/v1/cryptocurrency/airdrops'
         params = {
             'status': 'UPCOMING',

@@ -554,6 +554,24 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             {},
             self.get_coin_of_the_day_wrapper
         ),
+        prompt.add_command(
+            "Get Cryptos By Galaxy Score",
+            "get_lunarcrush_galaxy_score_cryptos",
+            {},
+            self.get_lunarcrush_galaxy_score_cryptos_wrapper
+        ),
+        prompt.add_command(
+            "Get Cryptos By Alt Rank",
+            "get_lunarcrush_alt_rank_cryptos",
+            {},
+            self.get_lunarcrush_alt_rank_cryptos_wrapper
+        ),
+        prompt.add_command(
+            "Get Recent Crypto Social Feeds",
+            "get_recent_crypto_social_feeds",
+            {},
+            self.get_recent_crypto_social_feeds_wrapper
+        ),
         # 8. FCS
         prompt.add_command(
             "Get Pivot Points Signals",
@@ -585,9 +603,9 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         # 9. COINMARKETCAP
         prompt.add_command(
             "Get Upcoming Airdrops",
-            "get_upcoming_airdrops",
+            "get_coinmarketcap_airdrops",
             {},
-            self.get_upcoming_airdrops_wrapper
+            self.get_coinmarketcap_airdrops_wrapper
         ),
         prompt.add_command(
             "Convert Crypto",
@@ -788,6 +806,18 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     def get_coin_of_the_day_wrapper(self):
         data = LunarCrush.get_coin_of_the_day(lunarcrush_api)
         return data
+    
+    def get_lunarcrush_galaxy_score_cryptos_wrapper(self):
+        data = LunarCrush.get_lunarcrush_galaxy_score_cryptos(lunarcrush_api)
+        return data
+    
+    def get_lunarcrush_alt_rank_cryptos_wrapper(self):
+        data = LunarCrush.get_lunarcrush_alt_rank_cryptos(lunarcrush_api)
+        return data
+
+    def get_recent_crypto_social_feeds_wrapper(self):
+        data = LunarCrush.get_recent_crypto_social_feeds(lunarcrush_api)
+        return data
 
 ################################################################################
 # 8. FCS
@@ -809,8 +839,8 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
 # 9. COINMARKETCAP
 ################################################################################
     
-    def get_upcoming_airdrops_wrapper(self) -> str:
-        data = CoinMarketCap.get_upcoming_airdrops(cmc_api)
+    def get_coinmarketcap_airdrops_wrapper(self) -> str:
+        data = CoinMarketCap.get_coinmarketcap_airdrops(cmc_api)
         return data
     
     def convert_crypto_wrapper(self, amount: float, symbol: str, conversion_symbol: str) -> str:
