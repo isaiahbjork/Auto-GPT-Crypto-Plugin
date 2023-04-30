@@ -6,7 +6,7 @@ class Wallet():
 
     def send_eth(recipient_address, private_key, amount, endpoint):
         # Set up a Web3 instance using an Infura provider
-        w3 = Web3(Web3.HTTPProvider(endpoint))
+        w3 = Web3(Web3.HTTPProvider(f'{endpoint}/eth'))
 
         # Get the sender's account from the private key
         sender_account = Account.from_key(private_key)

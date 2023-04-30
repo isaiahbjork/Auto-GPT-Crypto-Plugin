@@ -41,11 +41,7 @@ coinbase_secret = os.getenv('COINBASE_SECRET')
 network = os.getenv('ETH_NETWORK')
 fcs_api = os.getenv('FCS_API_KEY')
 cmc_api = os.getenv('CMC_API_KEY')
-endpoint = f"https://{network}.infura.io/v3/{infura_api}"
-
-# Connect to Ethereum node using Infura
-w3 = Web3(HTTPProvider(endpoint))
-
+endpoint = f"https://rpc.ankr.com/"
 
 class Message(TypedDict):
     role: str

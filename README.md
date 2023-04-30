@@ -31,16 +31,17 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **CoinMarketCap Airdrops**
 - **Currency Convertor**
 - **Recent Crypto Social Feed**
+- **Stake Tokens** (In-Progress)
 - **Swap Tokens**  (In-Progress)
+- **Send Tokens**  (In-Progress)
+- **Purchase NFT**  (In-Progress)
 - **Crypto News**  (In-Progress)
 - **Indicators**  (In-Progress)
-- **Search Top Holders**  (In-Progress)
-- **Stake Tokens** (In-Progress)
-- **Send Tokens**  (In-Progress)
-- **Get Coins By Market Cap**  (In-Progress)
 - **Trade on Exchanges**  (In-Progress)
 - **Fetch Candlesticks**  (In-Progress)
-- **Purchase NFT**  (In-Progress)
+- **Search Top Holders**  (In-Progress)
+- **Get Coins By Market Cap**  (In-Progress)
+- **Get Crypto Influencers**  (In-Progress)
 
 **Blockchains**
 - ETH
@@ -109,7 +110,6 @@ Append the following configuration settings to the end of the file:
 ################################################################################
 ### CRYPTO
 ################################################################################
-INFURA_API_KEY=
 ETHERSCAN_API_KEY=
 ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
@@ -126,8 +126,6 @@ KRAKEN_SECRET=
 COINBASE_API_KEY=
 COINBASE_SECRET=
 ```
-
-- Create a [Infura](https://infura.io) account.
 - Create a [Etherscan](https://etherscan.io) account.
 - Create a [LunarCrush](https://lunarcrush.com) account.
 - Create a [FCS](https://fcsapi.com) account.
