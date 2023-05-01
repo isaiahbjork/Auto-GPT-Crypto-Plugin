@@ -6,6 +6,7 @@ stake_tokens
 send_tokens
 purchase_tokens
 create_wallet
+get_my_wallet_info
 get_eth_balance
 get_eth_token_balances
 get_polygon_token_balances

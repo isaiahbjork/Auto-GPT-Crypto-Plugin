@@ -113,7 +113,6 @@ Append the following configuration settings to the end of the file:
 ETHERSCAN_API_KEY=
 ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
-ETH_NETWORK=
 LUNAR_CRUSH_API_KEY=
 TELEGRAM_API_ID=
 TELEGRAM_API_HASH=
@@ -137,7 +136,6 @@ COINBASE_SECRET=
 - Set `CMC_API_KEY` to your CoinMarketCap API Key.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
 - Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum mnemonic.
-- Set `ETH_NETWORK` to your Ethereum Network (mainnet or sepolia).
 - Set `EXCHANGES` to the crypto exchanges where you have an account. Review available [exchanges](/src/auto_gpt_crypto/exchanges.txt). (Example: binance,kraken,bybit)
 - Set `KRAKEN_API_KEY` to your Kraken API Key.
 - Set `KRAKEN_SECRET` to your Kraken Secret.

@@ -38,7 +38,6 @@ kraken_api = os.getenv('KRAKEN_API_KEY')
 kraken_secret = os.getenv('KRAKEN_SECRET')
 coinbase_api = os.getenv('COINBASE_API_KEY')
 coinbase_secret = os.getenv('COINBASE_SECRET')
-network = os.getenv('ETH_NETWORK')
 fcs_api = os.getenv('FCS_API_KEY')
 cmc_api = os.getenv('CMC_API_KEY')
 endpoint = f"https://rpc.ankr.com/"
@@ -240,6 +239,12 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             "create_wallet",
             {},
             self.create_wallet_wrapper
+        ),
+        prompt.add_command(
+            "Get My Wallet Info",
+            "get_my_wallet_info",
+            {},
+            self.get_my_wallet_info_wrapper
         ),
         # prompt.add_command(
         #     "Swap Tokens",
@@ -632,7 +637,10 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     def create_wallet_wrapper(self):
         data = Wallet.create_wallet()
         return data
-
+    
+    def get_my_wallet_info_wrapper(self):
+        data = Wallet.get_my_wallet_info()
+        return data
 
 ################################################################################
 # 2. BALANCES
