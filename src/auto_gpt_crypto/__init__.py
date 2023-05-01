@@ -235,6 +235,25 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             self.send_eth_wrapper
         ),
         prompt.add_command(
+            "Send Matic",
+            "send_matic",
+            {
+                "recipient_address": "<recipient_address>",
+                "amount": "<amount>",
+                "private_key": "<private_key>"
+            },
+            self.send_matic_wrapper
+        ),
+        prompt.add_command(
+            "Stake Matic",
+            "stake_matic",
+            {
+                "amount": "<amount>",
+                "private_key": "<private_key>"
+            },
+            self.stake_matic_wrapper
+        ),
+        prompt.add_command(
             "Create Wallet",
             "create_wallet",
             {},
@@ -633,7 +652,15 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     def send_eth_wrapper(self, recipient_address: str, amount: float, private_key: str) -> str:
         data = Wallet.send_eth(recipient_address, private_key, amount, endpoint)
         return data
-
+    
+    def send_matic_wrapper(self, recipient_address: str, amount: float, private_key: str) -> str:
+        data = Wallet.send_matic(recipient_address, private_key, amount, endpoint)
+        return data
+    
+    def stake_matic_wrapper(self, amount: float, private_key: str) -> str:
+        data = Wallet.stake_matic(amount, private_key, endpoint)
+        return data
+    
     def create_wallet_wrapper(self):
         data = Wallet.create_wallet()
         return data

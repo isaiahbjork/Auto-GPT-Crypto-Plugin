@@ -1,13 +1,15 @@
+import os
 from web3 import Web3, HTTPProvider
 from eth_account import Account
 from web3.contract import Contract
 Account.enable_unaudited_hdwallet_features()
-import os
 address = os.getenv('ETH_WALLET_ADDRESS')
 private_key = os.getenv('ETH_WALLET_PRIVATE_KEY')
+
+
 class Wallet():
 
-    def create_wallet(self):
+    def create_wallet():
         # Generate a new Ethereum account with a mnemonic phrase
         acct, mnemonic = Account.create_with_mnemonic()
 
@@ -19,18 +21,18 @@ class Wallet():
         }
 
         return wallet
-    
-    def get_my_wallet_info(self):
+
+    def get_my_wallet_info():
         wallet = {
             "address": address,
             "private_key": private_key
         }
         return wallet
-    
+
     def send_eth(recipient_address, private_key, amount, endpoint):
         # Set up a Web3 instance using an Web3 provider
         w3 = Web3(Web3.HTTPProvider(f'{endpoint}/eth'))
-       
+
         # Get the sender's account from the private key
         sender_account = Account.from_key(private_key)
 
@@ -61,11 +63,10 @@ class Wallet():
             signed_transaction.rawTransaction)
 
         return f"ETH Transaction sent. Transaction hash: {transaction_hash.hex()}"
-    
+
     def send_matic(recipient_address, private_key, amount, endpoint):
         # Set up a Web3 instance using an Web3 provider
         w3 = Web3(Web3.HTTPProvider(f'{endpoint}/polygon'))
-        
 
         # Get the sender's account from the private key
         sender_account = Account.from_key(private_key)
@@ -97,11 +98,10 @@ class Wallet():
             signed_transaction.rawTransaction)
 
         return f"Matic Transaction sent. Transaction hash: {transaction_hash.hex()}"
-    
+
     def stake_matic(amount, private_key, endpoint):
         w3 = Web3(Web3.HTTPProvider(f'{endpoint}/polygon'))
         staking_address = '0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908'
-        
 
         # Get the sender's account from the private key
         sender_account = Account.from_key(private_key)
