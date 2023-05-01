@@ -2,11 +2,14 @@ Crypto Wallet
 get_my_eth_balance
 get_my_nfts
 send_eth
+send_matic
 stake_tokens
 send_tokens
 purchase_tokens
 create_wallet
 get_my_wallet_info
+
+Balances
 get_eth_balance
 get_eth_token_balances
 get_polygon_token_balances
