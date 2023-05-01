@@ -1,5 +1,7 @@
 import os
 import ccxt
+
+
 class Exchanges():
     def available_crypto_exchanges():
         try:
@@ -27,19 +29,23 @@ class Exchanges():
         except Exception as e:
             return f"An error occurred while retrieving available exchanges: {str(e)}"
 
-
     def balance_on_kraken(kraken_api, kraken_secret):
         try:
             kraken = ccxt.kraken({
                 'apiKey': kraken_api,
                 'secret': kraken_secret,
             })
-            balance = kraken.fetch_balance()
+            balances = kraken.fetch_balance()
 
-            return balance
+            non_zero_balances = []
+
+            for currency, balance in balances['total'].items():
+                if balance != 0:
+                    non_zero_balances.append({'currency': currency, 'balance': balance})
+
+            return non_zero_balances
         except Exception as e:
             return f"An error occurred while retrieving balance from Kraken: {str(e)}"
-
 
     def balance_on_coinbase(coinbase_api, coinbase_secret):
         try:
@@ -47,8 +53,15 @@ class Exchanges():
                 'apiKey': coinbase_api,
                 'secret': coinbase_secret,
             })
-            balance = coinbase.fetch_balance()
+            balances = coinbase.fetch_balance()
 
-            return balance
+            non_zero_balances = []
+
+            for currency, balance in balances['total'].items():
+                if balance != 0:
+                    non_zero_balances.append({'currency': currency, 'balance': balance})
+
+            return non_zero_balances
+
         except Exception as e:
             return f"An error occurred while retrieving balance from Coinbase: {str(e)}"
