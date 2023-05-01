@@ -32,12 +32,13 @@ class Wallet():
     def send_eth(recipient_address, private_key, amount, endpoint):
         # Set up a Web3 instance using an Web3 provider
         w3 = Web3(Web3.HTTPProvider(f'{endpoint}/eth'))
-
+        amount = float(amount)
         # Get the sender's account from the private key
         sender_account = Account.from_key(private_key)
 
         # Check if the sender has enough balance
         sender_balance = w3.eth.get_balance(sender_account.address)
+        sender_balance = float(sender_balance)
         amount_wei = w3.to_wei(amount, 'ether')
         if sender_balance < amount_wei:
             return f"Insufficient balance."
@@ -67,12 +68,13 @@ class Wallet():
     def send_matic(recipient_address, private_key, amount, endpoint):
         # Set up a Web3 instance using an Web3 provider
         w3 = Web3(Web3.HTTPProvider(f'{endpoint}/polygon'))
-
+        amount = float(amount)
         # Get the sender's account from the private key
         sender_account = Account.from_key(private_key)
 
         # Check if the sender has enough balance
         sender_balance = w3.eth.get_balance(sender_account.address)
+        sender_balance = float(sender_balance)
         amount_wei = w3.to_wei(amount, 'ether')
         if sender_balance < amount_wei:
             return f"Insufficient balance."

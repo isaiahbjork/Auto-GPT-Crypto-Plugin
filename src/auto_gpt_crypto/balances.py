@@ -37,7 +37,7 @@ class Balances():
             return f'{balance_eth} ETH'
         else:
             raise Exception(
-                f"Failed to get ETH balance for {address}; status code {response.status_code}")
+                f"Failed to get ETH balance for {wallet_address}; status code {response.status_code}")
 
     def get_eth_token_balances(wallet_address):
         try:
