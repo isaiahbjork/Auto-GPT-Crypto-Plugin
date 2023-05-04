@@ -122,10 +122,8 @@ FCS_API_KEY=
 CMC_API_KEY=
 ### Exchanges
 EXCHANGES=
-KRAKEN_API_KEY=
-KRAKEN_SECRET=
-COINBASE_API_KEY=
-COINBASE_SECRET=
+EXCHANGE_NAME_SECRET=
+EXCHANGE_NAME_API_KEY=
 ```
 - Create a [Etherscan](https://etherscan.io) account.
 - Create a [Polyscan](https://polyscan.io) account.
@@ -140,10 +138,8 @@ COINBASE_SECRET=
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
 - Set `ETH_WALLET_PRIVATE_KEY` to your Ethereum mnemonic.
 - Set `EXCHANGES` to the crypto exchanges where you have an account. Review available [exchanges](/src/auto_gpt_crypto/exchanges.txt). (Example: binance,kraken,bybit)
-- Set `KRAKEN_API_KEY` to your Kraken API Key.
-- Set `KRAKEN_SECRET` to your Kraken Secret.
-- Set `COINBASE_API_KEY` to your Coinbase API Key.
-- Set `COINBASE_SECRET` to your Coinbase Secret.
+- Set `EXCHANGE_NAME_API_KEY` to your Exchange API Key. (Must be capital letters.)
+- Set `EXCHANGE_NAME_SECRET` to your Exchange Secret. (Must be capital letters.)
 
 `Telegram Group Listener Setup`
 1. Create a [Telegram](https://telegram.com) account.
