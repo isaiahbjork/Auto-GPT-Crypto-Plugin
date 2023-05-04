@@ -30,7 +30,6 @@ PromptGenerator = TypeVar("PromptGenerator")
 infura_api = os.getenv('INFURA_API_KEY')
 my_address = os.getenv('ETH_WALLET_ADDRESS')
 my_private_key = os.getenv('ETH_WALLET_PRIVATE_KEY')
-etherscan_api = os.getenv('ETHERSCAN_API_KEY')
 lunarcrush_api = os.getenv('LUNARCRUSH_API_KEY')
 telegram_api_id = os.getenv('TELEGRAM_API_ID')
 telegram_api_hash = os.getenv('TELEGRAM_API_HASH')
@@ -252,6 +251,16 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
                 "private_key": "<private_key>"
             },
             self.stake_matic_wrapper
+        ),
+        prompt.add_command(
+            "Swap Matic for Tokens",
+            "swap_matic_for_tokens",
+            {
+                "token_address": "token_address",
+                "private_key": "<private_key>",
+                "amount": "<amount>",
+            },
+            self.swap_matic_for_tokens_wrapper
         ),
         prompt.add_command(
             "Create Wallet",
@@ -541,16 +550,12 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
             self.available_crypto_exchanges_wrapper
         ),
         prompt.add_command(
-            "Balance on Kraken",
-            "balance_on_kraken",
-            {},
-            self.balance_on_kraken_wrapper
-        ),
-        prompt.add_command(
-            "Balance on Coinbase",
-            "balance_on_coinbase",
-            {},
-            self.balance_on_coinbase_wrapper
+            "Balance on Exchange",
+            "balance_on_exchange",
+            {
+                "exchange": "<exchange>"
+            },
+            self.balance_on_exchange_wrapper
         ),
         # 6. TELEGRAM
         prompt.add_command(
@@ -659,6 +664,10 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
     
     def stake_matic_wrapper(self, amount: float, private_key: str) -> str:
         data = Wallet.stake_matic(amount, private_key, endpoint)
+        return data
+    
+    def swap_matic_for_tokens_wrapper(self, token_address: str, private_key: str, amount: float) -> str:
+        data = Wallet.swap_matic_for_tokens(token_address, private_key, amount, endpoint)
         return data
     
     def create_wallet_wrapper(self):
@@ -810,12 +819,8 @@ class AutoGPTCryptoPlugin(AutoGPTPluginTemplate):
         data = Exchanges.available_crypto_exchanges()
         return data
 
-    def balance_on_coinbase_wrapper(self):
-        data = Exchanges.balance_on_coinbase(coinbase_api, coinbase_secret)
-        return data
-
-    def balance_on_kraken_wrapper(self):
-        data = Exchanges.balance_on_kraken(kraken_api, kraken_secret)
+    def balance_on_exchange_wrapper(self, exchange: str) -> str:
+        data = Exchanges.balance_on_exchange(exchange)
         return data
 
 ################################################################################

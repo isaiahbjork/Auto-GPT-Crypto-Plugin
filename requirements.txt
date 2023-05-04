@@ -10,4 +10,8 @@ twine
 auto-gpt-plugin-template
 web3
 eth-account
+eth-abi
+eth-utils
 ccxt
+uniswap-python
+telethon

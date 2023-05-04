@@ -16,13 +16,12 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 </p>
 
 ## 💡 Key Features:
-
 - **Get ETH Balance**
 - **Get Wallet Token Holdings**
 - **Get Wallet NFT Holdings**
 - **Get Coin/NFT of The Day**
 - **Create Wallet**
-- **Send ETH**
+- **Send ETH & MATIC**
 - **Get New Tokens From Dextools**
 - **Telegram Crypto Groups Listener**
 - **NFT Metadata**
@@ -31,17 +30,19 @@ Crypto Donations: 0x2457e8746EFa5894b70aE06a1b391474bc928B05
 - **CoinMarketCap Airdrops**
 - **Currency Convertor**
 - **Recent Crypto Social Feed**
+## 🔜 Upcoming:
 - **Stake Tokens** (In-Progress)
 - **Swap Tokens**  (In-Progress)
 - **Send Tokens**  (In-Progress)
 - **Purchase NFT**  (In-Progress)
+- **Trade on Exchanges**  (In-Progress)
 - **Crypto News**  (In-Progress)
 - **Indicators**  (In-Progress)
-- **Trade on Exchanges**  (In-Progress)
 - **Fetch Candlesticks**  (In-Progress)
 - **Search Top Holders**  (In-Progress)
 - **Get Coins By Market Cap**  (In-Progress)
 - **Get Crypto Influencers**  (In-Progress)
+
 
 **Blockchains**
 - ETH
@@ -83,7 +84,7 @@ If you haven't already, clone the [Auto-GPT](https://github.com/Significant-Grav
 You might have to run this in the Auto-GPT file if you get an error saying "No Moudle Found".
 
 ```bash
-pip install web3 eth-account ccxt telethon uniswap-python
+pip install web3 eth-account eth-abi ccxt telethon uniswap-python
 ```
 
 ### 5. Copy the Zip file into the Auto-GPT Plugin folder
@@ -111,6 +112,7 @@ Append the following configuration settings to the end of the file:
 ### CRYPTO
 ################################################################################
 ETHERSCAN_API_KEY=
+POLYSCAN_API_KEY=
 ETH_WALLET_ADDRESS=
 ETH_WALLET_PRIVATE_KEY=
 LUNAR_CRUSH_API_KEY=
@@ -126,6 +128,7 @@ COINBASE_API_KEY=
 COINBASE_SECRET=
 ```
 - Create a [Etherscan](https://etherscan.io) account.
+- Create a [Polyscan](https://polyscan.io) account.
 - Create a [LunarCrush](https://lunarcrush.com) account.
 - Create a [FCS](https://fcsapi.com) account.
 - Create a [CoinMarketCap](https://coinmarketcap.com/api/) account.
