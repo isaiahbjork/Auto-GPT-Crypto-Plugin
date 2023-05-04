@@ -67,7 +67,7 @@ class Exchanges():
 
         return order
 
-    def fetch_crypto_candlesticks(exchange, symbol, side, amount):
+    def fetch_crypto_candlesticks(exchange, symbol, timeframe):
         exchange_class = getattr(ccxt, exchange)
         cap_ex = exchange.upper()
         api_key = os.getenv(f'{cap_ex}_API_KEY')
@@ -77,6 +77,9 @@ class Exchanges():
             'secret': api_secret,
         })
 
-        order = exchange.create_order(symbol, 'market', side, amount)
+        candlesticks = exchange.fetch_ohlcv(symbol, timeframe)
 
-        return order
+        # Get the last 15 candlesticks
+        candlesticks = candlesticks[-15:]
+
+        return candlesticks
