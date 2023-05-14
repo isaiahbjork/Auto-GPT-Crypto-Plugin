@@ -132,7 +132,7 @@ EXCHANGE_NAME_API_KEY=
 - Create a [CoinMarketCap](https://coinmarketcap.com/api/) account.
 - Set `INFURA_API_KEY` to your Infura account ID.
 - Set `ETHERSCAN_API_KEY` to your Etherscan API Key.
-- Set `LUNAR_CRUSH_API_KEY` to your LunarCrush API Key.
+- Set `LUNARCRUSH_API_KEY` to your LunarCrush API Key.
 - Set `FCS_API_KEY` to your FCS API Key.
 - Set `CMC_API_KEY` to your CoinMarketCap API Key.
 - Set `ETH_WALLET_ADDRESS` to your Ethereum Wallet Address.
